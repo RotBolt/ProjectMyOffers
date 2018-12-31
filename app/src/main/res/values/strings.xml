@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Project My Offers</string>
+    <string name="app_title">My offers</string>
+    <string name="expired_delete_info">Expired Offers will be deleted after 15 days</string>
+    <string name="no_active_offers">No Active offers</string>
+    <string name="no_expired_offers">No Expired offers</string>
+    <string name="permission_info">
+        For My Offers to work please allow the following permissions \n\n
+        1. Read SMS \n
+        2. Receive SMS
+    </string>
+</resources>
