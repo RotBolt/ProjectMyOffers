@@ -1,5 +1,6 @@
 package com.intellyticshub.projectmyoffers.utils
 
+import android.util.Log
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -9,21 +10,27 @@ class OfferExtractor(private val message: String) {
 
         val identifiers = "(code|CODE|Code|coupon|Coupon|COUPON)"
 
-        val codeFilter = Regex("[A-Z0-9]+")
+        val codeFilter = Regex("([A-Z0-9]|-|_)+")
         val filterOperation = { string: String ->
             codeFilter.findAll(string).filter { thisMatch -> thisMatch.value != "CODE" && thisMatch.value != "C" }
                 .elementAt(0).value
         }
 
-        val codeRegex0 = Regex("$identifiers(:|-|\\s|[a-z])+[A-Z0-9]+")
+        val codeRegex0 = Regex("$identifiers(:|-|\\s|is|IS|Is|of|Of|OF)+([A-Z0-9]|-|_)+")
         val result0 = codeRegex0.find(message)
         val code0 = result0?.let { filterOperation(it.value) }
-        code0?.let { return it }
+        code0?.let {
+            if (it.contains(Regex("[A-Z]")))
+                return it
+        }
 
-        val codeRegex1 = Regex("[A-Z0-9]+ $identifiers")
+        val codeRegex1 = Regex("([A-Z0-9]|-|_)+ $identifiers")
         val result1 = codeRegex1.find(message)
         val code1 = result1?.let { filterOperation(it.value) }
-        code1?.let { return it }
+        code1?.let {
+            if (it.contains(Regex("[A-Z]")))
+                return it
+        }
 
         return "none"
     }
@@ -33,25 +40,22 @@ class OfferExtractor(private val message: String) {
             "((max |)(cashback|discount)( is | of | )([0-9]+(%| %|rs| rs)|rs(.|. | )[0-9]+))|((flat |)([0-9]+((%| %|rs| rs)|rs(.|. | )[0-9]+)(off| off))(([A-Za-z]|\\s)+ ([0-9]+(rs| rs)|rs(.|. | )[0-9]+)|))|(([0-9]+(%| %|rs| rs)|rs(.|. | )[0-9]+)( max| max | |)(cashback|discount))",
             RegexOption.IGNORE_CASE
         )
-        return offerRegex0.findAll(message).fold("") { acc, matchResult ->
+        val offer = offerRegex0.findAll(message).fold("") { acc, matchResult ->
             acc + matchResult.value + ". "
         }
+
+        return if (offer != "") offer else "none"
     }
 
-    fun extractExpiryDate(defaultYYYY: String) {
+    fun extractExpiryDate(defaultYYYY: String): Pair<String, Long> {
         val dateExtractor = DateExtractor(defaultYYYY)
-        val timeMillis = dateExtractor.extractDateMillis(message)
-        println("timeinmillis $timeMillis")
-        val calendar = Calendar.getInstance().apply {
-            timeInMillis = timeMillis
-        }
-        println(calendar.time)
+        return dateExtractor.extractDateMillis(message)
     }
 
 
-    class DateExtractor(private val defaultYYYY: String) {
+    private class DateExtractor(private val defaultYYYY: String) {
 
-        private val MM = "([1-9]|1[012])"
+        private val MM = "(0[1-9]|1[012])"
         private val MMM = "(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)"
         private val MMMMM = "(january|february|march|april|may|june|july|august|september|october|november|december)"
 
@@ -86,13 +90,13 @@ class OfferExtractor(private val message: String) {
             Pair("yyyy-dd-MM", "$yyyy-$dd-$MM"),
             Pair("MM-yyyy", "$MM-$yyyy"),
 
-            Pair("dd.MM.yyyy", "$dd.$MM.$yyyy"),
-            Pair("dd.MM.yy", "$dd.$MM.$yy"),
-            Pair("MM.dd.yyyy", "$MM.$dd.$yyyy"),
-            Pair("MM.dd.yy", "$MM.$dd.$yy"),
-            Pair("yyyy.MM.dd", "$yyyy.$MM.$dd"),
-            Pair("yyyy.dd.MM", "$yyyy.$dd.$MM"),
-            Pair("MM.yyyy", "$MM.$yyyy"),
+            Pair("dd.MM.yyyy", "$dd\\.$MM\\.$yyyy"),
+            Pair("dd.MM.yy", "$dd\\.$MM\\.$yy"),
+            Pair("MM.dd.yyyy", "$MM\\.$dd\\.$yyyy"),
+            Pair("MM.dd.yy", "$MM\\.$dd\\.$yy"),
+            Pair("yyyy.MM.dd", "$yyyy\\.$MM\\.$dd"),
+            Pair("yyyy.dd.MM", "$yyyy\\.$dd\\.$MM"),
+            Pair("MM.yyyy", "$MM\\.$yyyy"),
 
             Pair("dd MMM yyyy", "$dd $MMM $yyyy"),
             Pair("dd MMM yy", "$dd $MMM $yy"),
@@ -118,13 +122,13 @@ class OfferExtractor(private val message: String) {
             Pair("yyyy/dd/MMM", "$yyyy/$dd/$MMM"),
             Pair("MMM/yyyy", "$MMM/$yyyy"),
 
-            Pair("dd.MMM.yyyy", "$dd.$MMM.$yyyy"),
-            Pair("dd.MMM.yy", "$dd.$MMM.$yy"),
-            Pair("MMM.dd.yyyy", "$MMM.$dd.$yyyy"),
-            Pair("MMM.dd.yy", "$MMM.$dd.$yy"),
-            Pair("yyyy.MMM.dd", "$yyyy.$MMM.$dd"),
-            Pair("yyyy.dd.MMM", "$yyyy.$dd.$MMM"),
-            Pair("MMM.yyyy", "$MMM.$yyyy"),
+            Pair("dd.MMM.yyyy", "$dd\\.$MMM\\.$yyyy"),
+            Pair("dd.MMM.yy", "$dd\\.$MMM\\.$yy"),
+            Pair("MMM.dd.yyyy", "$MMM\\.$dd\\.$yyyy"),
+            Pair("MMM.dd.yy", "$MMM\\.$dd\\.$yy"),
+            Pair("yyyy.MMM.dd", "$yyyy\\.$MMM\\.$dd"),
+            Pair("yyyy.dd.MMM", "$yyyy\\.$dd\\.$MMM"),
+            Pair("MMM.yyyy", "$MMM\\.$yyyy"),
 
             Pair("dd MMMMM yyyy", "$dd $MMMMM $yyyy"),
             Pair("dd MMMMM yy", "$dd $MMMMM $yy"),
@@ -150,13 +154,13 @@ class OfferExtractor(private val message: String) {
             Pair("yyyy/dd/MMMMM", "$yyyy/$dd/$MMMMM"),
             Pair("MMMMM/yyyy", "$MMMMM/$yyyy"),
 
-            Pair("dd.MMMMM.yyyy", "$dd.$MMMMM.$yyyy"),
-            Pair("dd.MMMMM.yy", "$dd.$MMMMM.$yy"),
-            Pair("MMMMM.dd.yyyy", "$MMMMM.$dd.$yyyy"),
-            Pair("MMMMM.dd.yy", "$MMMMM.$dd.$yy"),
-            Pair("yyyy.MMMMM.dd", "$yyyy.$MMMMM.$dd"),
-            Pair("yyyy.dd.MMMMM", "$yyyy.$dd.$MMMMM"),
-            Pair("MMMMM.yyyy", "$MMMMM.$yyyy"),
+            Pair("dd.MMMMM.yyyy", "$dd\\.$MMMMM\\.$yyyy"),
+            Pair("dd.MMMMM.yy", "$dd\\.$MMMMM\\.$yy"),
+            Pair("MMMMM.dd.yyyy", "$MMMMM\\.$dd\\.$yyyy"),
+            Pair("MMMMM.dd.yy", "$MMMMM\\.$dd\\.$yy"),
+            Pair("yyyy.MMMMM.dd", "$yyyy\\.$MMMMM\\.$dd"),
+            Pair("yyyy.dd.MMMMM", "$yyyy\\.$dd\\.$MMMMM"),
+            Pair("MMMMM.yyyy", "$MMMMM\\.$yyyy"),
 
 
             Pair("MMM, yyyy", "$MMM, $yyyy"),
@@ -264,53 +268,62 @@ class OfferExtractor(private val message: String) {
         )
 
 
-        fun extractDateMillis(message: String): Long {
-
+        fun extractDateMillis(message: String): Pair<String, Long> {
 
             val extractOperation = { pattern: Map.Entry<String, String>, setNo: Int ->
                 val regex = Regex(pattern.value, RegexOption.IGNORE_CASE)
                 val results = regex.findAll(message)
                 var maxTimeMillis = -1L
+                var expiry = "none"
                 results.forEach {
-                    val sdf = SimpleDateFormat(
-                        if (setNo == 1) "${pattern.key} yyyy" else pattern.key,
-                        Locale("hin")
-                    )
-
+                    val sdf = SimpleDateFormat(if (setNo == 1) "${pattern.key} yyyy" else pattern.key, Locale.ENGLISH)
                     val date = sdf.parse(
                         if (setNo == 1) "${it.value} $defaultYYYY" else it.value
                     )
-                    if (date.time > maxTimeMillis)
+                    if (date.time > maxTimeMillis) {
                         maxTimeMillis = date.time
+                        expiry = it.value
+                    }
                 }
-                maxTimeMillis
+                Pair(expiry, maxTimeMillis)
             }
 
             for (pattern in datePatterns0) {
-                val expiryTimeMillis = extractOperation(pattern, 0)
-                if (expiryTimeMillis != -1L)
-                    return expiryTimeMillis
+                val expiryInfo = extractOperation(pattern, 0)
+                if (expiryInfo.second != -1L)
+                    return expiryInfo
             }
 
-            var maxTimeMillis = -1L
+            var maxTime = Pair("none", -1L)
 
 
             for (pattern in datePatterns2) {
-                val expiryTimeMillis = extractOperation(pattern, 2)
-                if (expiryTimeMillis > maxTimeMillis)
-                    maxTimeMillis = expiryTimeMillis
+                val expiryInfo = extractOperation(pattern, 2)
+                if (expiryInfo.second > maxTime.second)
+                    maxTime = expiryInfo
             }
 
-            if (maxTimeMillis != -1L) return maxTimeMillis
+            if (maxTime.second != -1L) return maxTime
 
             for (pattern in datePatterns1) {
-                val expiryTimeMillis = extractOperation(pattern, 1)
-                if (expiryTimeMillis > maxTimeMillis)
-                    maxTimeMillis = expiryTimeMillis
+                val expiryInfo = extractOperation(pattern, 1)
+                if (expiryInfo.second > maxTime.second)
+                    maxTime = expiryInfo
             }
 
-            return maxTimeMillis
+            if (maxTime.second != -1L) return maxTime
 
+            val lastRegex = Regex("last day|expiring today", RegexOption.IGNORE_CASE)
+            val result = lastRegex.find(message)
+
+            result?.let {
+                Log.i("PUI","""
+                    date string ${it.value}
+                    message $message
+                """.trimIndent())
+                maxTime = Pair(it.value.toLowerCase(), -2L)
+            }
+            return maxTime
         }
 
 

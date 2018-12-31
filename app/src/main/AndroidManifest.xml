@@ -21,7 +21,8 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".ui.actvities.PermissionActivity">
+        <activity android:name=".ui.actvities.PermissionActivity"
+                android:theme="@style/PermActivityStyle">
         </activity>
     </application>
 

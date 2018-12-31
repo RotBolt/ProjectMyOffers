@@ -21,13 +21,13 @@ class OfferExtractorUnitTest {
     @Test
     fun extractOfferTest(){
         val message="50% cashback on orders above Rs 699 (Max Discount Rs 450)"
-        val offerExtractor = OfferExtractor(message)
+        val offerExtractor = OfferExtractor(" ")
         println(offerExtractor.extractOffer())
     }
 
     @Test
     fun extractExpiryTest(){
-        val offerExtractor= OfferExtractor("From 28th Jan to 3rd May")
-        offerExtractor.extractExpiryDate("2018")
+        val offerExtractor= OfferExtractor("From 25th November")
+       println(offerExtractor.extractExpiryDate("2018").first)
     }
 }

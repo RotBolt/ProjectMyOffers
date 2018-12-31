@@ -16,30 +16,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
-    <ScrollView
+
+    <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvExpiredOffers"
+            android:padding="16dp"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-        <androidx.appcompat.widget.LinearLayoutCompat
-                android:orientation="vertical"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-            <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rvExpiredOffers"
-                    android:padding="16dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-            </androidx.recyclerview.widget.RecyclerView>
-
-            <TextView
-                    android:id="@+id/tvExpiryInfo"
-                    android:text="@string/expired_delete_info"
-                    android:gravity="center_horizontal"
-                    android:padding="16dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
-        </androidx.appcompat.widget.LinearLayoutCompat>
-    </ScrollView>
+            android:layout_height="wrap_content">
+    </androidx.recyclerview.widget.RecyclerView>
 
 </FrameLayout>

@@ -1,5 +1,6 @@
 package com.intellyticshub.projectmyoffers.ui.actvities
 
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
@@ -11,7 +12,11 @@ import com.intellyticshub.projectmyoffers.R
 import com.intellyticshub.projectmyoffers.data.Repository
 import com.intellyticshub.projectmyoffers.data.entity.OfferModel
 import com.intellyticshub.projectmyoffers.ui.adapters.PagerAdapter
+import com.intellyticshub.projectmyoffers.utils.OfferExtractor
 import kotlinx.android.synthetic.main.activity_main.*
+import java.util.*
+import java.util.concurrent.Callable
+import java.util.concurrent.Executors
 
 class MainActivity : AppCompatActivity() {
 
@@ -59,7 +64,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startLoadingAnim() {
-        Log.i("PUI", "startLoading")
         viewPager.visibility = View.GONE
         progress_circular.visibility = View.VISIBLE
         progress_circular.animate()
@@ -67,7 +71,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun stopLoadingAnim() {
-        Log.i("PUI", "stopLoading")
         viewPager.visibility = View.VISIBLE
         progress_circular.visibility = View.GONE
     }
@@ -75,10 +78,77 @@ class MainActivity : AppCompatActivity() {
 
     private fun scanForOffers() {
         startLoadingAnim()
-        Handler().postDelayed(
-            { stopLoadingAnim() },
-            2500
-        )
+
+        val repository = Repository.getInstance(application)
+
+
+        val newOffers = ArrayList<OfferModel>()
+        val executor = Executors.newSingleThreadExecutor()
+        val scanTask = Callable {
+
+            val smsURI = Uri.parse("content://sms/inbox")
+            val cursor = contentResolver.query(
+                smsURI, null, null, null, null
+            )
+
+            cursor?.run {
+                while (moveToNext()) {
+                    val address = getString(getColumnIndexOrThrow("address"))
+                    val smsBody = getString(getColumnIndexOrThrow("body"))
+                    val timeInMillis = getLong(getColumnIndexOrThrow("date"))
+                    val offerExtractor = OfferExtractor(smsBody)
+                    val offerCode = offerExtractor.extractOfferCode()
+                    val offer = offerExtractor.extractOffer()
+                    if (offerCode != "none" && offer != "none") {
+                        val calendar = Calendar.getInstance().apply { setTimeInMillis(timeInMillis) }
+                        val smsYear = calendar.get(Calendar.YEAR).toString()
+
+                        val expiryDateInfo = offerExtractor.extractExpiryDate(smsYear)
+
+                        val expiryDate = when {
+                            expiryDateInfo.first == "last day" || expiryDateInfo.first == "expiring today" -> with(
+                                calendar
+                            ) {
+                                "${get(Calendar.DAY_OF_MONTH)}-${get(Calendar.MONTH) + 1}-${get(Calendar.YEAR)}"
+                            }
+                            expiryDateInfo.first == "none" -> ""
+                            else -> expiryDateInfo.first
+                        }
+
+                        val expiryTimeMillis = if (expiryDateInfo.second == -2L) timeInMillis else expiryDateInfo.second
+
+                        val newOffer = OfferModel(
+                            offerCode = offerCode,
+                            offer = offer,
+                            vendor = address,
+                            message = smsBody,
+                            expiryDate = expiryDate,
+                            expiryTimeInMillis = expiryTimeMillis,
+                            deleteMark = false
+                        )
+
+                        if (expiryDateInfo.second == -2L) {
+                            Log.i(
+                                "PUI", """
+                                expirydate $expiryDate
+                                expiryTime $expiryTimeMillis
+
+                                model $newOffer
+                            """.trimIndent()
+                            )
+                        }
+                        newOffers.add(newOffer)
+                    }
+                }
+            }
+            cursor?.close()
+            repository.insertOffers(*newOffers.toTypedArray())
+        }
+
+        Handler().post {
+            executor.submit(scanTask).get()
+            stopLoadingAnim()
+        }
     }
 
     private fun deleteAllExpired() {

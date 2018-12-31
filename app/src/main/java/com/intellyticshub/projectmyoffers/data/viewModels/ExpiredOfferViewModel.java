@@ -4,7 +4,6 @@ import android.app.Application;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.ViewModel;
 import com.intellyticshub.projectmyoffers.data.Repository;
 import com.intellyticshub.projectmyoffers.data.entity.OfferModel;
 
@@ -19,6 +18,7 @@ public class ExpiredOfferViewModel extends AndroidViewModel {
         repository = Repository.getInstance(application);
         expiredOffers = repository.getExpiredOffers();
     }
+
 
     public LiveData<List<OfferModel>> getExpiredOffers() {
         return expiredOffers;
@@ -39,6 +39,5 @@ public class ExpiredOfferViewModel extends AndroidViewModel {
     public OfferModel getOfferModel(String offerCode){
         return repository.getOfferModel(offerCode);
     }
-
 
 }

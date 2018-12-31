@@ -14,11 +14,13 @@ import com.intellyticshub.projectmyoffers.ui.interfaces.OfferAction;
 
 import java.util.List;
 
-public class OfferAdapter extends RecyclerView.Adapter<OfferAdapter.OfferHolder> {
+public class OfferAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private List<OfferModel> offers;
     private OfferAction offerAction;
     private boolean isExpired;
+
+    private int VIEW_HEADER = 0;
 
     public OfferAdapter(List<OfferModel> offers, OfferAction offerAction, boolean isExpired) {
         this.offers = offers;
@@ -33,23 +35,47 @@ public class OfferAdapter extends RecyclerView.Adapter<OfferAdapter.OfferHolder>
 
     @NonNull
     @Override
-    public OfferHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater li = (LayoutInflater) parent.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         assert li != null;
-        View offerView = li.inflate(R.layout.layout_offer_item, parent, false);
-        return new OfferHolder(offerView);
-    }
-
-    @Override
-    public void onBindViewHolder(@NonNull OfferHolder holder, int position) {
-        if (offers != null) {
-            holder.bind(offers.get(position));
+        if (viewType == 0) {
+            View headerView = li.inflate(R.layout.layout_header_recycler, parent, false);
+            return new HeaderHolder(headerView);
+        } else {
+            View offerView = li.inflate(R.layout.layout_offer_item, parent, false);
+            return new OfferHolder(offerView);
         }
     }
 
     @Override
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+
+        int viewType = getItemViewType(position);
+        if (offers != null && viewType != VIEW_HEADER) {
+            ((OfferHolder) holder).bind(offers.get(position));
+        }
+
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        int VIEW_ITEM = 1;
+        if (position == getItemCount() - 1 && isExpired)
+            return VIEW_HEADER;
+        else
+            return VIEW_ITEM;
+    }
+
+    @Override
     public int getItemCount() {
-        return offers != null ? offers.size() : 0;
+        if (offers != null) {
+            if (isExpired) {
+                return offers.size() + 1;
+            }
+            return offers.size();
+        }
+        return 0;
+
     }
 
     class OfferHolder extends RecyclerView.ViewHolder {
@@ -69,25 +95,28 @@ public class OfferAdapter extends RecyclerView.Adapter<OfferAdapter.OfferHolder>
         }
 
         void bind(final OfferModel thisModel) {
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    offerAction.showOfferActions(thisModel);
-                }
-            });
-            String offerCodeLabel = "Your Code: " + thisModel.getOfferCode();
+            itemView.setOnClickListener(v -> offerAction.showOfferActions(thisModel));
+            String offerCodeLabel = "Code: " + thisModel.getOfferCode();
             tvOfferCode.setText(offerCodeLabel);
 
-            String offerLabel = "Your Offer: " + thisModel.getOffer();
+            String offerLabel = "Offer: " + thisModel.getOffer();
             tvOffer.setText(offerLabel);
 
             tvVendor.setText(thisModel.getVendor());
             tvExpiryDate.setText(thisModel.getExpiryDate());
 
-            if (isExpired){
+            if (!isExpired) {
                 tvExpiryDate.setTextColor(Color.RED);
             }
 
+        }
+    }
+
+
+    class HeaderHolder extends RecyclerView.ViewHolder {
+
+        HeaderHolder(@NonNull View itemView) {
+            super(itemView);
         }
     }
 }

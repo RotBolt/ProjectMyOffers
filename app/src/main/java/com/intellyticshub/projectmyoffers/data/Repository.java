@@ -1,6 +1,7 @@
 package com.intellyticshub.projectmyoffers.data;
 
 import android.app.Application;
+import android.util.Log;
 import androidx.lifecycle.LiveData;
 import com.intellyticshub.projectmyoffers.data.entity.OfferModel;
 import java.util.List;
@@ -33,6 +34,8 @@ public class Repository {
         allOffers = offerDao.getAllOffers();
 
         Long currentTimeMillis = System.currentTimeMillis();
+
+        Log.i("PUI","Curr time repo "+currentTimeMillis);
         activeOffers = offerDao.getActiveOffers(currentTimeMillis);
         expiredOffers = offerDao.getExpiredOffers(currentTimeMillis);
 
@@ -52,12 +55,9 @@ public class Repository {
     }
 
     public void insertOffers(final OfferModel... offerModels) {
-        Callable insertTask = new Callable<Void>() {
-            @Override
-            public Void call() {
-                offerDao.insertOffers(offerModels);
-                return null;
-            }
+        Callable insertTask = (Callable<Void>) () -> {
+            offerDao.insertOffers(offerModels);
+            return null;
         };
 
         Future futureInsert = executor.submit(insertTask);
@@ -71,12 +71,9 @@ public class Repository {
     }
 
     public void updateOffers(final OfferModel... offerModels) {
-        Callable updateTask = new Callable<Void>() {
-            @Override
-            public Void call() {
-                offerDao.updateOffers(offerModels);
-                return null;
-            }
+        Callable updateTask = (Callable<Void>) () -> {
+            offerDao.updateOffers(offerModels);
+            return null;
         };
 
         Future futureUpdate = executor.submit(updateTask);
@@ -91,12 +88,9 @@ public class Repository {
     }
 
     public void deleteOffers(final OfferModel... offerModels) {
-        Callable deleteTask = new Callable<Void>() {
-            @Override
-            public Void call() {
-                offerDao.deleteOffers(offerModels);
-                return null;
-            }
+        Callable deleteTask = (Callable<Void>) () -> {
+            offerDao.deleteOffers(offerModels);
+            return null;
         };
 
         Future futureDelete = executor.submit(deleteTask);
@@ -111,12 +105,7 @@ public class Repository {
     }
 
     public OfferModel getOfferModel(final String offerCode) {
-        Callable offerTask = new Callable<OfferModel>() {
-            @Override
-            public OfferModel call() {
-                return offerDao.getOfferModel(offerCode);
-            }
-        };
+        Callable offerTask = (Callable<OfferModel>) () -> offerDao.getOfferModel(offerCode);
 
         Future futureOfferModel = executor.submit(offerTask);
 

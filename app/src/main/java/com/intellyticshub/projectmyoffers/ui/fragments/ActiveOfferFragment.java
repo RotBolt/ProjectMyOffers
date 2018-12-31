@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -94,24 +93,9 @@ public class ActiveOfferFragment extends Fragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext())
                 .setTitle(offerModel.getOfferCode())
                 .setMessage(offerModel.getMessage())
-                .setPositiveButton("Copy", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        copyToClipboard(offerModel.getOfferCode());
-                    }
-                })
-                .setNeutralButton("Delete", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        mViewModel.deleteOffers(offerModel);
-                    }
-                })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
+                .setPositiveButton("Copy", (dialog, which) -> copyToClipboard(offerModel.getOfferCode()))
+                .setNeutralButton("Delete", (dialog, which) -> mViewModel.deleteOffers(offerModel))
+                .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
 
         AlertDialog dialog = builder.create();
         if (dialog.getWindow() != null)
