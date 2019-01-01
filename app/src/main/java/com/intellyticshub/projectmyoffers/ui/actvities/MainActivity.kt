@@ -26,6 +26,18 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         initFields()
+        checkFirstRun()
+    }
+
+    private fun checkFirstRun() {
+        val sharedPrefs = getSharedPreferences(getString(R.string.shared_pref_key), Context.MODE_PRIVATE)
+        val isFirstRun = sharedPrefs.getBoolean(getString(R.string.first_run), true)
+
+        if (isFirstRun) {
+            Handler().post { scanForOffers() }
+            sharedPrefs.edit().putBoolean(getString(R.string.first_run), false).apply()
+        }
+
     }
 
     private fun initFields() {

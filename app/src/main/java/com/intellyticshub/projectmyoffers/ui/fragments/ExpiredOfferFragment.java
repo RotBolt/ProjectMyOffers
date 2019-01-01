@@ -6,9 +6,11 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
@@ -32,6 +34,7 @@ public class ExpiredOfferFragment extends Fragment {
 
     private RecyclerView rvExpiredOffers;
     private TextView tvNoExpired;
+    private ImageView ivNoExpired;
 
     private String adapterAction = OfferAdapter.UPDATE_ACTION;
     private int adapterItemPosition =-1;
@@ -47,6 +50,7 @@ public class ExpiredOfferFragment extends Fragment {
         View fragView = inflater.inflate(R.layout.expired_offer_fragment, container, false);
         rvExpiredOffers = fragView.findViewById(R.id.rvExpiredOffers);
         tvNoExpired = fragView.findViewById(R.id.tvNoExpired);
+        ivNoExpired=fragView.findViewById(R.id.ivNoExpired);
         return fragView;
     }
 
@@ -88,14 +92,16 @@ public class ExpiredOfferFragment extends Fragment {
         if (isListEmpty) {
             rvExpiredOffers.setVisibility(View.GONE);
             tvNoExpired.setVisibility(View.VISIBLE);
+            ivNoExpired.setVisibility(View.VISIBLE);
         } else {
             rvExpiredOffers.setVisibility(View.VISIBLE);
             tvNoExpired.setVisibility(View.GONE);
+            ivNoExpired.setVisibility(View.GONE);
         }
     }
 
     private void showOfferDialog(final OfferModel offerModel,int position) {
-
+        Log.i("PUI","showDialog "+position);
         String dialogMessage = "Your Code: " + offerModel.getOfferCode();
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext())
                 .setMessage(dialogMessage)

@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
@@ -31,7 +32,7 @@ public class ActiveOfferFragment extends Fragment {
     private ActiveOfferViewModel mViewModel;
     private RecyclerView rvActiveOffers;
     private TextView tvNoActive;
-
+    private ImageView ivNoActive;
     private String adapterAction = OfferAdapter.UPDATE_ACTION;
     private int adapterItemPosition =-1;
     public static ActiveOfferFragment newInstance() {
@@ -44,6 +45,7 @@ public class ActiveOfferFragment extends Fragment {
         View fragView = inflater.inflate(R.layout.active_offer_fragment, container, false);
         rvActiveOffers = fragView.findViewById(R.id.rvActiveOffers);
         tvNoActive = fragView.findViewById(R.id.tvNoActive);
+        ivNoActive=fragView.findViewById(R.id.ivNoActive);
         return fragView;
     }
 
@@ -108,9 +110,11 @@ public class ActiveOfferFragment extends Fragment {
         if (isListEmpty) {
             rvActiveOffers.setVisibility(View.GONE);
             tvNoActive.setVisibility(View.VISIBLE);
+            ivNoActive.setVisibility(View.VISIBLE);
         } else {
             rvActiveOffers.setVisibility(View.VISIBLE);
             tvNoActive.setVisibility(View.GONE);
+            ivNoActive.setVisibility(View.GONE);
         }
     }
 
