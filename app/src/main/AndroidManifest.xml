@@ -21,17 +21,24 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".ui.actvities.PermissionActivity"
+        <activity
+                android:name=".ui.actvities.PermissionActivity"
                 android:theme="@style/PermActivityStyle">
         </activity>
 
-        <receiver android:name=".utils.broadcastReceivers.NewOfferDetector"
+        <receiver
+                android:name=".utils.broadcastReceivers.NewOfferDetector"
                 android:enabled="true"
-                android:exported="true">
+                android:exported="true"
+                android:permission="android.permission.RECEIVE_SMS">
             <intent-filter>
                 <action android:name="android.provider.Telephony.SMS_RECEIVED"/>
             </intent-filter>
         </receiver>
+        <receiver
+                android:name=".utils.broadcastReceivers.ExpiryChecker"
+                android:exported="false"
+                android:enabled="true"/>
     </application>
 
 </manifest>

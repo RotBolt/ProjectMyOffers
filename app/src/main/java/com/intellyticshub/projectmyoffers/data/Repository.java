@@ -4,6 +4,7 @@ import android.app.Application;
 import android.util.Log;
 import androidx.lifecycle.LiveData;
 import com.intellyticshub.projectmyoffers.data.entity.OfferModel;
+
 import java.util.List;
 import java.util.concurrent.*;
 
@@ -31,18 +32,18 @@ public class Repository {
 
         OfferDatabase offerDatabase = OfferDatabase.getDatabase(application);
         offerDao = offerDatabase.offerDao();
-        allOffers = offerDao.getAllOffers();
+        allOffers = offerDao.getAllOffersLive();
 
         Long currentTimeMillis = System.currentTimeMillis();
 
-        Log.i("PUI","Curr time repo "+currentTimeMillis);
+        Log.i("PUI", "Curr time repo " + currentTimeMillis);
         activeOffers = offerDao.getActiveOffers(currentTimeMillis);
         expiredOffers = offerDao.getExpiredOffers(currentTimeMillis);
 
         executor = Executors.newFixedThreadPool(3);
     }
 
-    public LiveData<List<OfferModel>> getAllOffers() {
+    public LiveData<List<OfferModel>> getAllOffersLive() {
         return allOffers;
     }
 
@@ -52,6 +53,22 @@ public class Repository {
 
     public LiveData<List<OfferModel>> getExpiredOffers() {
         return expiredOffers;
+    }
+
+    public List<OfferModel> getAllOffers() {
+        Callable<List<OfferModel>> getOffersTask = (Callable<List<OfferModel>>) () -> offerDao.getAllOffers();
+
+        Future<List<OfferModel>> futureAllOffers = executor.submit(getOffersTask);
+
+        try {
+            return futureAllOffers.get();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+            return null;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public void insertOffers(final OfferModel... offerModels) {

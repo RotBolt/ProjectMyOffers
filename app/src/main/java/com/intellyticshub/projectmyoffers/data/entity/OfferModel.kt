@@ -1,9 +1,11 @@
 package com.intellyticshub.projectmyoffers.data.entity
 
+import android.os.Parcelable
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import kotlinx.android.parcel.Parcelize
 
-
+@Parcelize
 @Entity(tableName = "Offers")
 data class OfferModel(
     @PrimaryKey
@@ -14,4 +16,4 @@ data class OfferModel(
     val message: String,
     val expiryTimeInMillis: Long,
     var deleteMark: Boolean = false
-)
+) : Parcelable

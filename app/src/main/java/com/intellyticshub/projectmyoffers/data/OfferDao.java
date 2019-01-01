@@ -10,7 +10,10 @@ import java.util.List;
 public interface OfferDao {
 
     @Query("SELECT * FROM Offers ORDER BY expiryTimeInMillis ASC")
-    LiveData<List<OfferModel>> getAllOffers();
+    LiveData<List<OfferModel>> getAllOffersLive();
+
+    @Query("SELECT * FROM Offers ORDER BY expiryTimeInMillis ASC")
+    List<OfferModel> getAllOffers();
 
     @Query("SELECT * FROM Offers  WHERE expiryTimeInMillis >= :currentTimeMillis ORDER BY expiryTimeInMillis ASC")
     LiveData<List<OfferModel>> getActiveOffers(Long currentTimeMillis);

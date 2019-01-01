@@ -90,7 +90,7 @@ public class NewOfferDetector extends BroadcastReceiver {
                             );
                             Repository repository = Repository.getInstance((Application) context.getApplicationContext());
                             repository.insertOffers(newOffer);
-                            if (expiryTimeMillis > currTimeMillis) {
+                            if (expiryTimeMillis >= currTimeMillis) {
                                 sendNotification(context, offerCode, offer);
                             }
                         }
