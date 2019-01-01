@@ -106,16 +106,15 @@ class MainActivity : AppCompatActivity() {
                         val expiryDateInfo = offerExtractor.extractExpiryDate(smsYear)
 
                         val expiryDate = when {
-                            expiryDateInfo.first == "last day" || expiryDateInfo.first == "expiring today" -> with(
-                                calendar
-                            ) {
+                            expiryDateInfo.expiryDate == "last day" || expiryDateInfo.expiryDate == "expiring today" -> with(calendar) {
                                 "${get(Calendar.DAY_OF_MONTH)}-${get(Calendar.MONTH) + 1}-${get(Calendar.YEAR)}"
                             }
-                            expiryDateInfo.first == "none" -> ""
-                            else -> expiryDateInfo.first
+                            expiryDateInfo.expiryDate == "none" -> ""
+                            else -> expiryDateInfo.expiryDate
                         }
 
-                        val expiryTimeMillis = if (expiryDateInfo.second == -2L) timeInMillis else expiryDateInfo.second
+                        val expiryTimeMillis =
+                            if (expiryDateInfo.expiryTimeInMillis == -2L) timeInMillis else expiryDateInfo.expiryTimeInMillis
 
                         val newOffer = OfferModel(
                             offerCode = offerCode,
@@ -127,7 +126,7 @@ class MainActivity : AppCompatActivity() {
                             deleteMark = false
                         )
 
-                        if (expiryDateInfo.second == -2L) {
+                        if (expiryDateInfo.expiryTimeInMillis == -2L) {
                             Log.i(
                                 "PUI", """
                                 expirydate $expiryDate

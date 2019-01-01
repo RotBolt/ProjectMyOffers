@@ -1,10 +1,10 @@
 package com.intellyticshub.projectmyoffers.utils
 
-import android.util.Log
 import java.text.SimpleDateFormat
 import java.util.*
 
 class OfferExtractor(private val message: String) {
+
 
     fun extractOfferCode(): String {
 
@@ -47,11 +47,16 @@ class OfferExtractor(private val message: String) {
         return if (offer != "") offer else "none"
     }
 
-    fun extractExpiryDate(defaultYYYY: String): Pair<String, Long> {
+    fun extractExpiryDate(defaultYYYY: String): ExpiryDateInfo {
         val dateExtractor = DateExtractor(defaultYYYY)
         return dateExtractor.extractDateMillis(message)
     }
 
+
+    data class ExpiryDateInfo(
+        val expiryDate: String,
+        val expiryTimeInMillis: Long
+    )
 
     private class DateExtractor(private val defaultYYYY: String) {
 
@@ -268,7 +273,7 @@ class OfferExtractor(private val message: String) {
         )
 
 
-        fun extractDateMillis(message: String): Pair<String, Long> {
+        fun extractDateMillis(message: String): ExpiryDateInfo {
 
             val extractOperation = { pattern: Map.Entry<String, String>, setNo: Int ->
                 val regex = Regex(pattern.value, RegexOption.IGNORE_CASE)
@@ -285,43 +290,43 @@ class OfferExtractor(private val message: String) {
                         expiry = it.value
                     }
                 }
-                Pair(expiry, maxTimeMillis)
+                ExpiryDateInfo(expiry, maxTimeMillis)
             }
 
             for (pattern in datePatterns0) {
                 val expiryInfo = extractOperation(pattern, 0)
-                if (expiryInfo.second != -1L)
+                if (expiryInfo.expiryTimeInMillis != -1L)
                     return expiryInfo
             }
 
-            var maxTime = Pair("none", -1L)
+            var maxTime = ExpiryDateInfo("none", -1L)
 
 
             for (pattern in datePatterns2) {
                 val expiryInfo = extractOperation(pattern, 2)
-                if (expiryInfo.second > maxTime.second)
+                if (expiryInfo.expiryTimeInMillis > maxTime.expiryTimeInMillis)
                     maxTime = expiryInfo
             }
 
-            if (maxTime.second != -1L) return maxTime
+            if (maxTime.expiryTimeInMillis != -1L) return maxTime
 
             for (pattern in datePatterns1) {
                 val expiryInfo = extractOperation(pattern, 1)
-                if (expiryInfo.second > maxTime.second)
+                if (expiryInfo.expiryTimeInMillis > maxTime.expiryTimeInMillis)
                     maxTime = expiryInfo
             }
 
-            if (maxTime.second != -1L) return maxTime
+            if (maxTime.expiryTimeInMillis != -1L) return maxTime
 
             val lastRegex = Regex("last day|expiring today", RegexOption.IGNORE_CASE)
             val result = lastRegex.find(message)
 
             result?.let {
-                Log.i("PUI","""
-                    date string ${it.value}
-                    message $message
-                """.trimIndent())
-                maxTime = Pair(it.value.toLowerCase(), -2L)
+                maxTime = ExpiryDateInfo(it.value.toLowerCase(), -2L)
+            }
+
+            if (maxTime.expiryTimeInMillis == -1L) {
+                maxTime = ExpiryDateInfo("none", Long.MAX_VALUE)
             }
             return maxTime
         }
