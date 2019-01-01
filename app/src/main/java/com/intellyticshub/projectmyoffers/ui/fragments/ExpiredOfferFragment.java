@@ -6,7 +6,6 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -101,7 +100,6 @@ public class ExpiredOfferFragment extends Fragment {
     }
 
     private void showOfferDialog(final OfferModel offerModel,int position) {
-        Log.i("PUI","showDialog "+position);
         String dialogMessage = "Your Code: " + offerModel.getOfferCode();
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext())
                 .setMessage(dialogMessage)

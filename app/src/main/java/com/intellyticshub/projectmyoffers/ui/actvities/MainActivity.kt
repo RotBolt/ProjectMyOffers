@@ -13,6 +13,7 @@ import com.intellyticshub.projectmyoffers.R
 import com.intellyticshub.projectmyoffers.data.Repository
 import com.intellyticshub.projectmyoffers.data.entity.OfferModel
 import com.intellyticshub.projectmyoffers.ui.adapters.PagerAdapter
+import com.intellyticshub.projectmyoffers.utils.DebugLogger
 import com.intellyticshub.projectmyoffers.utils.OfferExtractor
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
@@ -104,15 +105,22 @@ class MainActivity : AppCompatActivity() {
                 smsURI, null, null, null, null
             )
             cursor?.run {
+                var debugLogger = DebugLogger()
+                var sb = StringBuilder()
                 var maxTimeMillis = lastSmsTimeMillis
                 while (moveToNext()) {
                     val address = getString(getColumnIndexOrThrow("address"))
                     val smsBody = getString(getColumnIndexOrThrow("body"))
+
+                    sb.append(smsBody + "\n\n")
+
                     val timeInMillis = getLong(getColumnIndexOrThrow("date"))
                     if (timeInMillis > lastSmsTimeMillis) {
                         val offerExtractor = OfferExtractor(smsBody)
                         val offerCode = offerExtractor.extractOfferCode()
                         val offer = offerExtractor.extractOffer()
+
+                        sb.append("offerCode $offerCode , offer $offer. \n---------\n")
                         if (offerCode != "none" && offer != "none") {
                             val calendar = Calendar.getInstance().apply { setTimeInMillis(timeInMillis) }
                             val smsYear = calendar.get(Calendar.YEAR).toString()
@@ -151,9 +159,9 @@ class MainActivity : AppCompatActivity() {
                     if (maxTimeMillis < timeInMillis)
                         maxTimeMillis = timeInMillis
                 }
+                debugLogger.writeLog("scanAllOffers.txt", sb.toString())
                 lastSmsTimeMillis = maxTimeMillis
             }
-
             cursor?.close()
             if (newOffers.isNotEmpty()) {
                 sharedPrefs.edit().putLong(getString(R.string.last_sms_time_milllis), lastSmsTimeMillis).apply()

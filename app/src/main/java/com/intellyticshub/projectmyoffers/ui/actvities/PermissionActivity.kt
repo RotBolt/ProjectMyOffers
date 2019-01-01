@@ -17,7 +17,8 @@ class PermissionActivity : AppCompatActivity() {
 
     private val permissions = arrayOf(
         Manifest.permission.READ_SMS,
-        Manifest.permission.RECEIVE_SMS
+        Manifest.permission.RECEIVE_SMS,
+        Manifest.permission.WRITE_EXTERNAL_STORAGE
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,7 +56,9 @@ class PermissionActivity : AppCompatActivity() {
             if (grantResults[1] == PackageManager.PERMISSION_DENIED) {
                 Toast.makeText(this, "Please Allow RECEIVE_SMS", Toast.LENGTH_SHORT).show()
             }
-
+            if (grantResults[2] == PackageManager.PERMISSION_DENIED) {
+                Toast.makeText(this, "Please Allow WRITE_EXTERNAL", Toast.LENGTH_SHORT).show()
+            }
             if (checkPermissions(this.permissions))
                 btnPerm.text = "Next >>"
         }

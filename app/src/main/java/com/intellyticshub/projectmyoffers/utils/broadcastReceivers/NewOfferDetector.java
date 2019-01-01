@@ -152,7 +152,6 @@ public class NewOfferDetector extends BroadcastReceiver {
         if (mNotificationManager != null) {
             Handler handler = new Handler();
             handler.postDelayed(() -> mNotificationManager.notify(0, builder.build()), 7000);
-
         }
     }
 

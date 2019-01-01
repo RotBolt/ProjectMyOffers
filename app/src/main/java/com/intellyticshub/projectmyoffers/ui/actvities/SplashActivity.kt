@@ -18,7 +18,8 @@ class SplashActivity : AppCompatActivity() {
         val permissionRes = checkPermissions(
             arrayOf(
                 Manifest.permission.READ_SMS,
-                Manifest.permission.RECEIVE_SMS
+                Manifest.permission.RECEIVE_SMS,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
             )
         )
         Handler().postDelayed(
