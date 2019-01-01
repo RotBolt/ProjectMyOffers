@@ -14,7 +14,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -26,7 +25,6 @@ import com.intellyticshub.projectmyoffers.ui.adapters.OfferAdapter;
 import com.intellyticshub.projectmyoffers.ui.interfaces.OfferAction;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class ActiveOfferFragment extends Fragment {
 
@@ -34,6 +32,8 @@ public class ActiveOfferFragment extends Fragment {
     private RecyclerView rvActiveOffers;
     private TextView tvNoActive;
 
+    private String adapterAction = OfferAdapter.UPDATE_ACTION;
+    private int adapterItemPosition =-1;
     public static ActiveOfferFragment newInstance() {
         return new ActiveOfferFragment();
     }
@@ -53,29 +53,23 @@ public class ActiveOfferFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         mViewModel = ViewModelProviders.of(this).get(ActiveOfferViewModel.class);
 
-        OfferAction offerAction = new OfferAction() {
-            @Override
-            public void showOfferActions(OfferModel offerModel) {
-                showOfferDialog(offerModel);
-            }
-        };
+        OfferAction offerAction = this::showOfferDialog;
 
 
         final OfferAdapter activeOfferAdapter = new OfferAdapter(
-                new ArrayList<OfferModel>(),
+                new ArrayList<>(),
                 offerAction,
                 false
         );
 
-        mViewModel.getActiveOffers().observe(this, new Observer<List<OfferModel>>() {
-            @Override
-            public void onChanged(List<OfferModel> offerModels) {
-                if (offerModels != null) {
-                    toggleViews(offerModels.isEmpty());
-                    activeOfferAdapter.updateList(offerModels);
-                } else {
-                    toggleViews(true);
-                }
+        mViewModel.getActiveOffers().observe(this, offerModels -> {
+            if (offerModels != null) {
+                toggleViews(offerModels.isEmpty());
+                activeOfferAdapter.updateList(offerModels,adapterAction, adapterItemPosition);
+                adapterItemPosition =-1;
+                adapterAction=OfferAdapter.UPDATE_ACTION;
+            } else {
+                toggleViews(true);
             }
         });
 
@@ -89,12 +83,16 @@ public class ActiveOfferFragment extends Fragment {
 
     }
 
-    private void showOfferDialog(final OfferModel offerModel) {
+    private void showOfferDialog(final OfferModel offerModel,int position) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext())
                 .setTitle(offerModel.getOfferCode())
                 .setMessage(offerModel.getMessage())
                 .setPositiveButton("Copy", (dialog, which) -> copyToClipboard(offerModel.getOfferCode()))
-                .setNeutralButton("Delete", (dialog, which) -> mViewModel.deleteOffers(offerModel))
+                .setNeutralButton("Delete", (dialog, which) -> {
+                    adapterAction=OfferAdapter.REMOVE_ACTION;
+                    adapterItemPosition =position;
+                    mViewModel.deleteOffers(offerModel);
+                })
                 .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
 
         AlertDialog dialog = builder.create();

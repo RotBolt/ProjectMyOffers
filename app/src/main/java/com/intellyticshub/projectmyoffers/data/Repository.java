@@ -1,7 +1,6 @@
 package com.intellyticshub.projectmyoffers.data;
 
 import android.app.Application;
-import android.util.Log;
 import androidx.lifecycle.LiveData;
 import com.intellyticshub.projectmyoffers.data.entity.OfferModel;
 
@@ -16,6 +15,7 @@ public class Repository {
     private LiveData<List<OfferModel>> expiredOffers;
 
     private ExecutorService executor;
+    private Long currentTimeMillis;
     private static Repository instance;
 
 
@@ -33,14 +33,17 @@ public class Repository {
         OfferDatabase offerDatabase = OfferDatabase.getDatabase(application);
         offerDao = offerDatabase.offerDao();
         allOffers = offerDao.getAllOffersLive();
-
-        Long currentTimeMillis = System.currentTimeMillis();
-
-        Log.i("PUI", "Curr time repo " + currentTimeMillis);
+        currentTimeMillis = System.currentTimeMillis();
         activeOffers = offerDao.getActiveOffers(currentTimeMillis);
         expiredOffers = offerDao.getExpiredOffers(currentTimeMillis);
 
         executor = Executors.newFixedThreadPool(3);
+    }
+
+    public void setCurrentTimeMillis(Long currentTimeMillis) {
+        this.currentTimeMillis = currentTimeMillis;
+        activeOffers = offerDao.getActiveOffers(currentTimeMillis);
+        expiredOffers = offerDao.getExpiredOffers(currentTimeMillis);
     }
 
     public LiveData<List<OfferModel>> getAllOffersLive() {
@@ -56,7 +59,7 @@ public class Repository {
     }
 
     public List<OfferModel> getAllOffers() {
-        Callable<List<OfferModel>> getOffersTask = (Callable<List<OfferModel>>) () -> offerDao.getAllOffers();
+        Callable<List<OfferModel>> getOffersTask = () -> offerDao.getAllOffers();
 
         Future<List<OfferModel>> futureAllOffers = executor.submit(getOffersTask);
 
@@ -71,8 +74,27 @@ public class Repository {
         }
     }
 
+
+    public List<OfferModel> getMarkedDeleteOffers() {
+        Callable<List<OfferModel>> getOffersTask = () -> offerDao.getMarkedDeleteOffers();
+
+        Future<List<OfferModel>> futureDeleteOffers = executor.submit(getOffersTask);
+
+        try {
+            return futureDeleteOffers.get();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+            return null;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+
+
     public void insertOffers(final OfferModel... offerModels) {
-        Callable insertTask = (Callable<Void>) () -> {
+        Callable<Void> insertTask = () -> {
             offerDao.insertOffers(offerModels);
             return null;
         };
@@ -88,7 +110,7 @@ public class Repository {
     }
 
     public void updateOffers(final OfferModel... offerModels) {
-        Callable updateTask = (Callable<Void>) () -> {
+        Callable<Void> updateTask = () -> {
             offerDao.updateOffers(offerModels);
             return null;
         };
@@ -105,7 +127,7 @@ public class Repository {
     }
 
     public void deleteOffers(final OfferModel... offerModels) {
-        Callable deleteTask = (Callable<Void>) () -> {
+        Callable<Void> deleteTask = () -> {
             offerDao.deleteOffers(offerModels);
             return null;
         };
@@ -122,7 +144,7 @@ public class Repository {
     }
 
     public OfferModel getOfferModel(final String offerCode) {
-        Callable offerTask = (Callable<OfferModel>) () -> offerDao.getOfferModel(offerCode);
+        Callable<OfferModel> offerTask = () -> offerDao.getOfferModel(offerCode);
 
         Future futureOfferModel = executor.submit(offerTask);
 

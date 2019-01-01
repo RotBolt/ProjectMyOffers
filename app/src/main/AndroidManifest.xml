@@ -35,10 +35,6 @@
                 <action android:name="android.provider.Telephony.SMS_RECEIVED"/>
             </intent-filter>
         </receiver>
-        <receiver
-                android:name=".utils.broadcastReceivers.ExpiryChecker"
-                android:exported="false"
-                android:enabled="true"/>
     </application>
 
 </manifest>

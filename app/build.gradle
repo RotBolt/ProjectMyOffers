@@ -49,6 +49,10 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-common-java8:$lifecycle_version"
     testImplementation "androidx.arch.core:core-testing:$lifecycle_version"
 
+    //workmanager dependencies
+    implementation "android.arch.work:work-runtime:$work_version"
+    androidTestImplementation "android.arch.work:work-testing:$work_version"
+
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.1.1'

@@ -8,12 +8,15 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.Telephony;
 import android.telephony.SmsMessage;
 import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import com.intellyticshub.projectmyoffers.R;
 import com.intellyticshub.projectmyoffers.data.Repository;
@@ -22,6 +25,7 @@ import com.intellyticshub.projectmyoffers.ui.actvities.MainActivity;
 import com.intellyticshub.projectmyoffers.utils.OfferExtractor;
 
 import java.util.Calendar;
+import java.util.Locale;
 
 public class NewOfferDetector extends BroadcastReceiver {
 
@@ -64,7 +68,12 @@ public class NewOfferDetector extends BroadcastReceiver {
                             switch (expiryDateInfo.getExpiryDate()) {
                                 case "last day":
                                 case "expiring today":
-                                    expiryDate = calendar.get(Calendar.DAY_OF_MONTH) + "-" + (calendar.get(Calendar.MONTH) + 1) + "-" + calendar.get(Calendar.YEAR);
+                                    expiryDate = String.format(Locale.ENGLISH,
+                                            "%02d/%02d/%d",
+                                            calendar.get(Calendar.DAY_OF_MONTH),
+                                            calendar.get(Calendar.MONTH) + 1,
+                                            calendar.get(Calendar.YEAR)
+                                    );
                                     break;
                                 case "none":
                                     expiryDate = "";
@@ -74,8 +83,9 @@ public class NewOfferDetector extends BroadcastReceiver {
                             }
 
                             Long expiryTimeMillis;
+                            Long extraPeriod = 16 * 60 * 60 * 1000L;
                             if (expiryDateInfo.getExpiryTimeInMillis() == -2L)
-                                expiryTimeMillis = currTimeMillis;
+                                expiryTimeMillis = currTimeMillis + extraPeriod;
                             else
                                 expiryTimeMillis = expiryDateInfo.getExpiryTimeInMillis();
 
@@ -90,6 +100,9 @@ public class NewOfferDetector extends BroadcastReceiver {
                             );
                             Repository repository = Repository.getInstance((Application) context.getApplicationContext());
                             repository.insertOffers(newOffer);
+                            repository.setCurrentTimeMillis(currTimeMillis);
+                            SharedPreferences sharedPrefs = context.getSharedPreferences(context.getString(R.string.shared_pref_key), Context.MODE_PRIVATE);
+                            sharedPrefs.edit().putLong(context.getString(R.string.last_sms_time_milllis), currTimeMillis).apply();
                             if (expiryTimeMillis >= currTimeMillis) {
                                 sendNotification(context, offerCode, offer);
                             }
@@ -110,7 +123,7 @@ public class NewOfferDetector extends BroadcastReceiver {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             CharSequence name = context.getString(R.string.app_name);
             NotificationChannel mChannel =
-                    new NotificationChannel("channel_id", name, NotificationManager.IMPORTANCE_DEFAULT);
+                    new NotificationChannel("channel_id", name, NotificationManager.IMPORTANCE_HIGH);
             if (mNotificationManager != null) {
                 mNotificationManager.createNotificationChannel(mChannel);
             }
@@ -126,7 +139,8 @@ public class NewOfferDetector extends BroadcastReceiver {
                 .setColor(ContextCompat.getColor(context, R.color.colorPrimary))
                 .setContentTitle("New Offer Came")
                 .setContentText("Code : " + code + " Offer : " + offer)
-                .setContentIntent(pendingIntent);
+                .setContentIntent(pendingIntent)
+                .setPriority(NotificationManagerCompat.IMPORTANCE_HIGH);
 
         // Set the Channel ID for Android O.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -136,7 +150,9 @@ public class NewOfferDetector extends BroadcastReceiver {
         builder.setAutoCancel(true);
 
         if (mNotificationManager != null) {
-            mNotificationManager.notify(0, builder.build());
+            Handler handler = new Handler();
+            handler.postDelayed(() -> mNotificationManager.notify(0, builder.build()), 7000);
+
         }
     }
 

@@ -21,6 +21,9 @@ public interface OfferDao {
     @Query("SELECT * FROM Offers  WHERE expiryTimeInMillis < :currentTimeMillis ORDER BY expiryTimeInMillis ASC")
     LiveData<List<OfferModel>> getExpiredOffers(Long currentTimeMillis);
 
+    @Query("SELECT * FROM Offers WHERE deleteMark=1")
+    List<OfferModel> getMarkedDeleteOffers();
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertOffers(OfferModel... offerModels);
 

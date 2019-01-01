@@ -16,6 +16,8 @@ import java.util.List;
 
 public class OfferAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
+    public static final String UPDATE_ACTION="update";
+    public static final String REMOVE_ACTION="remove";
     private List<OfferModel> offers;
     private OfferAction offerAction;
     private boolean isExpired;
@@ -28,9 +30,14 @@ public class OfferAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         this.isExpired = isExpired;
     }
 
-    public void updateList(List<OfferModel> newOffers) {
-        this.offers = newOffers;
-        notifyDataSetChanged();
+    public void updateList(List<OfferModel> newOffers,String action,int position) {
+        if (action.equals(UPDATE_ACTION)) {
+            this.offers = newOffers;
+            notifyDataSetChanged();
+        }else if (action.equals(REMOVE_ACTION)){
+            this.offers.remove(position);
+            notifyItemRemoved(position);
+        }
     }
 
     @NonNull
@@ -52,7 +59,7 @@ public class OfferAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
         int viewType = getItemViewType(position);
         if (offers != null && viewType != VIEW_HEADER) {
-            ((OfferHolder) holder).bind(offers.get(position));
+            ((OfferHolder) holder).bind(offers.get(position),position);
         }
 
     }
@@ -94,8 +101,8 @@ public class OfferAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             tvExpiryDate = itemView.findViewById(R.id.tvExpiryDate);
         }
 
-        void bind(final OfferModel thisModel) {
-            itemView.setOnClickListener(v -> offerAction.showOfferActions(thisModel));
+        void bind(final OfferModel thisModel,int position) {
+            itemView.setOnClickListener(v -> offerAction.showOfferActions(thisModel,position));
             String offerCodeLabel = "Code: " + thisModel.getOfferCode();
             tvOfferCode.setText(offerCodeLabel);
 

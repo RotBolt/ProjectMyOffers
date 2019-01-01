@@ -1,6 +1,7 @@
 package com.intellyticshub.projectmyoffers.ui.actvities
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -9,11 +10,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.intellyticshub.projectmyoffers.R
+import com.intellyticshub.projectmyoffers.utils.scheduleExpiryMarking
 import kotlinx.android.synthetic.main.activity_permission.*
 
 class PermissionActivity : AppCompatActivity() {
 
-    private val permissons = arrayOf(
+    private val permissions = arrayOf(
         Manifest.permission.READ_SMS,
         Manifest.permission.RECEIVE_SMS
     )
@@ -22,11 +24,14 @@ class PermissionActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_permission)
 
+        val sharedPrefs = getSharedPreferences(getString(R.string.shared_pref_key), Context.MODE_PRIVATE)
+        sharedPrefs.edit().clear().apply()
+
         btnPerm.setOnClickListener {
             if (btnPerm.text == "Allow") {
                 ActivityCompat.requestPermissions(
                     this,
-                    permissons,
+                    permissions,
                     25
                 )
             } else {
@@ -35,6 +40,7 @@ class PermissionActivity : AppCompatActivity() {
                         addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
                         addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     }
+                scheduleExpiryMarking()
                 startActivity(intent)
             }
         }
@@ -50,7 +56,7 @@ class PermissionActivity : AppCompatActivity() {
                 Toast.makeText(this, "Please Allow RECEIVE_SMS", Toast.LENGTH_SHORT).show()
             }
 
-            if (checkPermissions(permissons))
+            if (checkPermissions(this.permissions))
                 btnPerm.text = "Next >>"
         }
 

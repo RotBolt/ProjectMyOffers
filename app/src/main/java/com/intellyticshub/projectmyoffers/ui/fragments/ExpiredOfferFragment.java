@@ -33,6 +33,9 @@ public class ExpiredOfferFragment extends Fragment {
     private RecyclerView rvExpiredOffers;
     private TextView tvNoExpired;
 
+    private String adapterAction = OfferAdapter.UPDATE_ACTION;
+    private int adapterItemPosition =-1;
+
     public static ExpiredOfferFragment newInstance() {
         return new ExpiredOfferFragment();
     }
@@ -63,7 +66,9 @@ public class ExpiredOfferFragment extends Fragment {
         mViewModel.getExpiredOffers().observe(this, offerModels -> {
             if (offerModels != null) {
                 toggleViews(offerModels.isEmpty());
-                expiredOfferAdapter.updateList(offerModels);
+                expiredOfferAdapter.updateList(offerModels,adapterAction, adapterItemPosition);
+                adapterAction=OfferAdapter.UPDATE_ACTION;
+                adapterItemPosition=-1;
             } else {
                 toggleViews(true);
             }
@@ -89,13 +94,17 @@ public class ExpiredOfferFragment extends Fragment {
         }
     }
 
-    private void showOfferDialog(final OfferModel offerModel) {
+    private void showOfferDialog(final OfferModel offerModel,int position) {
 
         String dialogMessage = "Your Code: " + offerModel.getOfferCode();
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext())
                 .setMessage(dialogMessage)
                 .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
-                .setNeutralButton("Delete", (dialog, which) -> mViewModel.deleteOffers(offerModel))
+                .setNeutralButton("Delete", (dialog, which) ->{
+                    adapterAction=OfferAdapter.REMOVE_ACTION;
+                    adapterItemPosition =position;
+                    mViewModel.deleteOffers(offerModel);
+                })
                 .setPositiveButton("Copy", (dialog, which) -> copyToClipboard(offerModel.getOfferCode()));
 
         AlertDialog dialog = builder.create();

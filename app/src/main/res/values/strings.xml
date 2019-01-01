@@ -4,6 +4,8 @@
     <string name="expired_delete_info">Expired Offers will be deleted after 15 days</string>
     <string name="no_active_offers">No Active offers</string>
     <string name="no_expired_offers">No Expired offers</string>
+    <string name="shared_pref_key">SharedPrefs</string>
+    <string name="last_sms_time_milllis">last_sms_time</string>
     <string name="permission_info">
         For My Offers to work please allow the following permissions \n\n
         1. Read SMS \n
