@@ -27,6 +27,23 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    flavorDimensions "version"
+    productFlavors {
+        developement {
+            dimension "version"
+            applicationIdSuffix ".development"
+        }
+
+        production {
+            dimension "version"
+            applicationIdSuffix ".production"
+        }
+    }
+    sourceSets {
+        developement { java.srcDirs = ['src/developement/java', 'src/developement/java/'] } 
+        production {java.srcDirs = ['src/production/java', 'src/production/java/'] }
+    }
 }
 
 dependencies {
@@ -59,6 +76,6 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
 }
 
-androidExtensions{
-    experimental=true
+androidExtensions {
+    experimental = true
 }

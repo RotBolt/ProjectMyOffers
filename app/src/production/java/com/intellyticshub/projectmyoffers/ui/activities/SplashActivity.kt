@@ -1,4 +1,4 @@
-package com.intellyticshub.projectmyoffers.ui.actvities
+package com.intellyticshub.projectmyoffers.ui.activities
 
 import android.Manifest
 import android.content.Intent
@@ -18,8 +18,7 @@ class SplashActivity : AppCompatActivity() {
         val permissionRes = checkPermissions(
             arrayOf(
                 Manifest.permission.READ_SMS,
-                Manifest.permission.RECEIVE_SMS,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
+                Manifest.permission.RECEIVE_SMS
             )
         )
         Handler().postDelayed(

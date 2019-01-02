@@ -16,11 +16,13 @@ class OfferExtractor(private val message: String) {
                 .elementAt(0).value
         }
 
+        fun String.validateCode() = length > 2 && first() != '-' && first() != '_'
+
         val codeRegex0 = Regex("$identifiers(:|-|\\s|is|IS|Is|of|Of|OF)+([A-Z0-9]|-|_)+")
         val result0 = codeRegex0.find(message)
         val code0 = result0?.let { filterOperation(it.value) }
         code0?.let {
-            if (it.contains(Regex("[A-Z]")))
+            if (it.validateCode())
                 return it
         }
 
@@ -28,7 +30,7 @@ class OfferExtractor(private val message: String) {
         val result1 = codeRegex1.find(message)
         val code1 = result1?.let { filterOperation(it.value) }
         code1?.let {
-            if (it.contains(Regex("[A-Z]")))
+            if (it.validateCode())
                 return it
         }
 
@@ -37,7 +39,7 @@ class OfferExtractor(private val message: String) {
 
     fun extractOffer(): String {
         val offerRegex0 = Regex(
-            "((max |)(cashback|discount)( is | of | )([0-9]+(%| %|rs| rs)|rs(.|. | )[0-9]+))|((flat |)([0-9]+((%| %|rs| rs)|rs(.|. | )[0-9]+)(off| off))(([A-Za-z]|\\s)+ ([0-9]+(rs| rs)|rs(.|. | )[0-9]+)|))|(([0-9]+(%| %|rs| rs)|rs(.|. | )[0-9]+)( max| max | |)(cashback|discount))",
+            "((max |min |)(cashback|discount)( is | of | )([0-9]+(%| %|rs| rs)|rs(.|. | )[0-9]+))|((flat |)([0-9]+(%| %|rs| rs)|rs(.|. | )[0-9]+)(off| off))|(([0-9]+(%| %|rs| rs)|rs(.|. | )[0-9]+)( max| max | min| min| |)(cashback|discount))",
             RegexOption.IGNORE_CASE
         )
         val offer = offerRegex0.findAll(message).fold("") { acc, matchResult ->
@@ -178,6 +180,7 @@ class OfferExtractor(private val message: String) {
             Pair("MM/dd", "$MM/$dd"),
 
             Pair("dd MMM", "$dd $MMM"),
+            Pair("ddMMM", "$dd$MMM"),
 
             Pair("dd'st' MMM", "${dd}st $MMM"),
             Pair("dd'nd' MMM", "${dd}nd $MMM"),
