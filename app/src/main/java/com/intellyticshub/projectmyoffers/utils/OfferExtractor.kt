@@ -321,11 +321,11 @@ class OfferExtractor(private val message: String) {
 
             if (maxTime.expiryTimeInMillis != -1L) return maxTime
 
-            val lastRegex = Regex("last day|expiring today", RegexOption.IGNORE_CASE)
+            val lastRegex = Regex("last day|expiring today|midnight|off today", RegexOption.IGNORE_CASE)
             val result = lastRegex.find(message)
 
             result?.let {
-                maxTime = ExpiryDateInfo(it.value.toLowerCase(), -2L)
+                maxTime = ExpiryDateInfo("findFromCurrTime", -2L)
             }
 
             if (maxTime.expiryTimeInMillis == -1L) {

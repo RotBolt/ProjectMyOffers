@@ -66,8 +66,7 @@ public class NewOfferDetector extends BroadcastReceiver {
 
                             String expiryDate;
                             switch (expiryDateInfo.getExpiryDate()) {
-                                case "last day":
-                                case "expiring today":
+                                case "findFromCurrTime":
                                     expiryDate = String.format(Locale.ENGLISH,
                                             "%02d/%02d/%d",
                                             calendar.get(Calendar.DAY_OF_MONTH),

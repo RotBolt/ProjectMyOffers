@@ -7,9 +7,12 @@
     <string name="shared_pref_key">SharedPrefs</string>
     <string name="last_sms_time_milllis">last_sms_time</string>
     <string name="first_run">first_run</string>
+    <string name="search_hint">Search Offers by Brands</string>
     <string name="permission_info">
         For My Offers to work please allow the following permissions \n\n
         1. Read SMS \n
         2. Receive SMS
     </string>
+    <string name="empty_search_result">Search your offers</string>
+    <string name="empty_search_image_placeholder">No offers found image</string>
 </resources>

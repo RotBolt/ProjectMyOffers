@@ -36,7 +36,6 @@ public class Repository {
         currentTimeMillis = System.currentTimeMillis();
         activeOffers = offerDao.getActiveOffers(currentTimeMillis);
         expiredOffers = offerDao.getExpiredOffers(currentTimeMillis);
-
         executor = Executors.newFixedThreadPool(3);
     }
 
@@ -45,6 +44,7 @@ public class Repository {
         activeOffers = offerDao.getActiveOffers(currentTimeMillis);
         expiredOffers = offerDao.getExpiredOffers(currentTimeMillis);
     }
+
 
     public LiveData<List<OfferModel>> getAllOffersLive() {
         return allOffers;
@@ -56,6 +56,22 @@ public class Repository {
 
     public LiveData<List<OfferModel>> getExpiredOffers() {
         return expiredOffers;
+    }
+
+    public List<OfferModel> findOffersByKeyWords(String keyWord, Long currentTimeMillis) {
+        Callable<List<OfferModel>> filterOfferTask = () -> offerDao.findOffersByKeyWord("%"+keyWord+"%", currentTimeMillis);
+
+        Future<List<OfferModel>> futureOffers = executor.submit(filterOfferTask);
+
+        try {
+            return futureOffers.get();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+            return null;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public List<OfferModel> getAllOffers() {
@@ -90,7 +106,6 @@ public class Repository {
             return null;
         }
     }
-
 
 
     public void insertOffers(final OfferModel... offerModels) {

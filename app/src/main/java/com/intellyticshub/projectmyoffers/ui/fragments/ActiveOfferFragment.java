@@ -1,9 +1,6 @@
 package com.intellyticshub.projectmyoffers.ui.fragments;
 
 import android.app.AlertDialog;
-import android.content.ClipData;
-import android.content.ClipboardManager;
-import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -11,7 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -26,6 +22,8 @@ import com.intellyticshub.projectmyoffers.ui.adapters.OfferAdapter;
 import com.intellyticshub.projectmyoffers.ui.interfaces.OfferAction;
 
 import java.util.ArrayList;
+
+import static com.intellyticshub.projectmyoffers.utils.OfferUtilsKt.copyToClipboard;
 
 public class ActiveOfferFragment extends Fragment {
 
@@ -89,7 +87,7 @@ public class ActiveOfferFragment extends Fragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext())
                 .setTitle(offerModel.getOfferCode())
                 .setMessage(offerModel.getMessage())
-                .setPositiveButton("Copy", (dialog, which) -> copyToClipboard(offerModel.getOfferCode()))
+                .setPositiveButton("Copy", (dialog, which) -> copyToClipboard(offerModel.getOfferCode(),getContext()))
                 .setNeutralButton("Delete", (dialog, which) -> {
                     adapterAction=OfferAdapter.REMOVE_ACTION;
                     adapterItemPosition =position;
@@ -119,12 +117,5 @@ public class ActiveOfferFragment extends Fragment {
     }
 
 
-    private void copyToClipboard(String offerCode) {
-        ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-        ClipData clip = ClipData.newPlainText("OfferModel Code", offerCode);
-        if (clipboard != null) {
-            clipboard.setPrimaryClip(clip);
-            Toast.makeText(getContext(), offerCode + " copied", Toast.LENGTH_SHORT).show();
-        }
-    }
+
 }

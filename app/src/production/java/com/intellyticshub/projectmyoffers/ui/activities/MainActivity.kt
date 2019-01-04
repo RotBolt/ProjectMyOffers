@@ -1,12 +1,15 @@
 package com.intellyticshub.projectmyoffers.ui.activities
 
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
 import androidx.lifecycle.Observer
 import com.google.android.material.tabs.TabLayout
 import com.intellyticshub.projectmyoffers.R
@@ -55,11 +58,13 @@ class MainActivity : AppCompatActivity() {
                 when (tab.position) {
                     0 -> {
                         isActiveTab = true
+                        ivSearch.visibility = View.VISIBLE
                         viewPager.currentItem = 0
                         fab.setImageResource(R.drawable.ic_find)
                     }
                     1 -> {
                         isActiveTab = false
+                        ivSearch.visibility = View.GONE
                         viewPager.currentItem = 1
                         fab.setImageResource(R.drawable.ic_delete)
                     }
@@ -71,8 +76,13 @@ class MainActivity : AppCompatActivity() {
             if (isActiveTab) {
                 scanForOffers()
             } else {
-                deleteAllExpired()
+                showDeleteAll()
             }
+        }
+
+        ViewCompat.setElevation(ivSearch,100.0f)
+        ivSearch.setOnClickListener {
+            startActivity(Intent(this@MainActivity, SearchActivity::class.java))
         }
     }
 
@@ -122,9 +132,7 @@ class MainActivity : AppCompatActivity() {
                             val expiryDateInfo = offerExtractor.extractExpiryDate(smsYear)
 
                             val expiryDate = when {
-                                expiryDateInfo.expiryDate == "last day" || expiryDateInfo.expiryDate == "expiring today" -> with(
-                                    calendar
-                                ) {
+                                expiryDateInfo.expiryDate == "findFromCurrTime" -> with(calendar) {
                                     val day = get(Calendar.DAY_OF_MONTH).toString().padStart(2, '0')
                                     val month = (get(Calendar.MONTH) + 1).toString().padStart(2, '0')
                                     val year = get(Calendar.YEAR)
@@ -165,7 +173,7 @@ class MainActivity : AppCompatActivity() {
 
             if (newOffers.isEmpty()) {
                 runOnUiThread {
-                    Toast.makeText(this, "No Offers found :(", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "No new  Offers found :(", Toast.LENGTH_SHORT).show()
                 }
             }
 
@@ -177,6 +185,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
+
     private fun deleteAllExpired() {
         val repository = Repository.getInstance(application)
         var expiredList: List<OfferModel> = listOf()
@@ -184,5 +194,17 @@ class MainActivity : AppCompatActivity() {
         expiredLive.observe(this, Observer { it -> it.let { expiredList = it } })
         expiredLive.removeObservers(this)
         repository.deleteOffers(*(expiredList.toTypedArray()))
+    }
+
+    private fun showDeleteAll(){
+        val builder = AlertDialog.Builder(this)
+            .setMessage("Delete All ?")
+            .setPositiveButton("ok"){_,_->
+                deleteAllExpired()
+            }
+            .setNegativeButton("Cancel"){dialog, _ ->
+                dialog.dismiss()
+            }
+        builder.create().show()
     }
 }

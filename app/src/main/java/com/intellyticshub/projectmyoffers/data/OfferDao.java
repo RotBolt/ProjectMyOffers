@@ -36,4 +36,7 @@ public interface OfferDao {
     @Query("SELECT * FROM Offers WHERE offerCode = :offerCode")
     OfferModel getOfferModel(String offerCode);
 
+    @Query("SELECT * FROM Offers WHERE expiryTimeInMillis >= :currTimeMillis AND offerCode LIKE :keyWord OR message LIKE :keyWord OR vendor LIKE :keyWord")
+    List<OfferModel> findOffersByKeyWord(String keyWord, Long currTimeMillis);
+
 }
