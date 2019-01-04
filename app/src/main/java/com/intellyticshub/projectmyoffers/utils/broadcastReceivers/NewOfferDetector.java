@@ -21,7 +21,7 @@ import androidx.core.content.ContextCompat;
 import com.intellyticshub.projectmyoffers.R;
 import com.intellyticshub.projectmyoffers.data.Repository;
 import com.intellyticshub.projectmyoffers.data.entity.OfferModel;
-import com.intellyticshub.projectmyoffers.ui.actvities.MainActivity;
+import com.intellyticshub.projectmyoffers.ui.activities.MainActivity;
 import com.intellyticshub.projectmyoffers.utils.OfferExtractor;
 
 import java.util.Calendar;
@@ -66,8 +66,7 @@ public class NewOfferDetector extends BroadcastReceiver {
 
                             String expiryDate;
                             switch (expiryDateInfo.getExpiryDate()) {
-                                case "last day":
-                                case "expiring today":
+                                case "findFromCurrTime":
                                     expiryDate = String.format(Locale.ENGLISH,
                                             "%02d/%02d/%d",
                                             calendar.get(Calendar.DAY_OF_MONTH),

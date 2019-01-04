@@ -1,4 +1,4 @@
-package com.intellyticshub.projectmyoffers.ui.actvities
+package com.intellyticshub.projectmyoffers.ui.activities
 
 import android.content.Context
 import android.net.Uri
@@ -105,22 +105,21 @@ class MainActivity : AppCompatActivity() {
                 smsURI, null, null, null, null
             )
             cursor?.run {
-                var debugLogger = DebugLogger()
-                var sb = StringBuilder()
+                val debugLogger = DebugLogger()
+                val logRecorder = StringBuilder()
                 var maxTimeMillis = lastSmsTimeMillis
                 while (moveToNext()) {
                     val address = getString(getColumnIndexOrThrow("address"))
                     val smsBody = getString(getColumnIndexOrThrow("body"))
 
-                    sb.append(smsBody + "\n\n")
-
+                    logRecorder.append(smsBody + "\n")
                     val timeInMillis = getLong(getColumnIndexOrThrow("date"))
                     if (timeInMillis > lastSmsTimeMillis) {
                         val offerExtractor = OfferExtractor(smsBody)
                         val offerCode = offerExtractor.extractOfferCode()
                         val offer = offerExtractor.extractOffer()
 
-                        sb.append("offerCode $offerCode , offer $offer. \n---------\n")
+                        logRecorder.append("Offer Code $offerCode, offer $offer \n-----------------------\n")
                         if (offerCode != "none" && offer != "none") {
                             val calendar = Calendar.getInstance().apply { setTimeInMillis(timeInMillis) }
                             val smsYear = calendar.get(Calendar.YEAR).toString()
@@ -159,10 +158,12 @@ class MainActivity : AppCompatActivity() {
                     if (maxTimeMillis < timeInMillis)
                         maxTimeMillis = timeInMillis
                 }
-                debugLogger.writeLog("scanAllOffers.txt", sb.toString())
                 lastSmsTimeMillis = maxTimeMillis
+                debugLogger.writeLog("ScanOffers.txt", logRecorder.toString())
             }
+
             cursor?.close()
+
             if (newOffers.isNotEmpty()) {
                 sharedPrefs.edit().putLong(getString(R.string.last_sms_time_milllis), lastSmsTimeMillis).apply()
                 repository.insertOffers(*newOffers.toTypedArray())

@@ -5,7 +5,6 @@ import java.io.File
 
 class DebugLogger {
     private val directory = Environment.getExternalStorageDirectory()
-
     private val debugLogFolderName = "ProjectMyOffers"
     fun writeLog(fileName: String, logData: String) {
         val debugLogFolder = File(directory, debugLogFolderName)

@@ -5,7 +5,7 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ui.actvities.SplashActivity">
+        tools:context=".ui.activities.SplashActivity">
 
     <ImageView
             android:src="@drawable/ic_coupon"
@@ -35,7 +35,7 @@
             android:layout_marginRight="8dp"
             android:padding="8dp"
             app:layout_constraintVertical_bias="0.65"
-            android:textSize="20sp"
+            android:textSize="28sp"
             app:layout_constraintStart_toStartOf="parent"
             android:layout_marginLeft="8dp"
             android:layout_marginStart="8dp"

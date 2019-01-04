@@ -47,7 +47,7 @@ public class OfferAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         LayoutInflater li = (LayoutInflater) parent.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         assert li != null;
         if (viewType == 0) {
-            View headerView = li.inflate(R.layout.layout_header_recycler, parent, false);
+            View headerView = li.inflate(R.layout.layout_footer_recycler, parent, false);
             return new HeaderHolder(headerView);
         } else {
             View offerView = li.inflate(R.layout.layout_offer_item, parent, false);

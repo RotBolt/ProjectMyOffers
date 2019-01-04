@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="permission_info">
+        For My Offers Debug to work please allow the following permissions \n\n
+        1. Read SMS \n
+        2. Receive SMS \n
+        3. Write External Storage
+    </string>
+</resources>

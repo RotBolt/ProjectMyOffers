@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:padding="16dp"
+        android:layout_margin="8dp"
+        android:focusable="true"
+        android:foreground="?attr/selectableItemBackgroundBorderless"
+        android:background="@drawable/offer_card_bg"
+        android:layout_height="wrap_content">
+
+    <TextView
+            android:id="@+id/tvFilteredVendor"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_width="0dp"
+            tools:text="TM-HARU"
+            android:padding="8dp"
+            android:textSize="16sp"
+            android:textColor="@color/colorTextPrimary"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@+id/tvFilteredCode"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintBottom_toTopOf="@+id/tvFilteredSMS"/>
+
+    <TextView
+            android:id="@+id/tvFilteredCode"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_width="0dp"
+            tools:text="Code: HARU-90"
+            android:padding="8dp"
+            android:textSize="16sp"
+            android:textColor="@color/colorTextPrimary"
+            android:layout_height="wrap_content"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintBottom_toTopOf="@+id/tvFilteredVendor"/>
+
+    <TextView
+            android:id="@+id/tvFilteredSMS"
+            android:maxLines="2"
+            android:ellipsize="end"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvFilteredVendor"
+            android:layout_width="0dp"
+            tools:text="Winter Sale 50%"
+            android:padding="8dp"
+            android:textSize="14sp"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"/>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
