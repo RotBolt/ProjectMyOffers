@@ -9,6 +9,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
 import androidx.lifecycle.Observer
 import com.google.android.material.tabs.TabLayout
@@ -18,6 +19,7 @@ import com.intellyticshub.projectmyoffers.data.entity.OfferModel
 import com.intellyticshub.projectmyoffers.ui.adapters.PagerAdapter
 import com.intellyticshub.projectmyoffers.utils.OfferExtractor
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.content_main.*
 import java.util.*
 import java.util.concurrent.Callable
 import java.util.concurrent.Executors
@@ -30,6 +32,15 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         initFields()
         checkFirstRun()
+    }
+
+    override fun onBackPressed() {
+
+        if (drawerLayout != null && drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START)
+        } else {
+            super.onBackPressed()
+        }
     }
 
     private fun checkFirstRun() {
@@ -74,19 +85,51 @@ class MainActivity : AppCompatActivity() {
 
         fab.setOnClickListener {
             if (isActiveTab) {
-                scanForOffers()
+                    scanForOffers()
             } else {
-                showDeleteAll()
+                deleteAllExpired()
             }
         }
 
-        ViewCompat.setElevation(ivSearch,100.0f)
+        ViewCompat.setElevation(ivSearch, 100.0f)
+        ViewCompat.setElevation(ivNavMenu, 100.0f)
         ivSearch.setOnClickListener {
             startActivity(Intent(this@MainActivity, SearchActivity::class.java))
+        }
+
+        ivNavMenu.setOnClickListener {
+            drawerLayout.openDrawer(GravityCompat.START)
+        }
+
+        navView.setNavigationItemSelectedListener {
+            when (it.itemId) {
+                R.id.action_expire_today -> {
+                    val intent = Intent(this, OffersInRangeActivity::class.java).apply {
+                        putExtra("range", "today")
+                    }
+                    startActivity(intent)
+                    true
+                }
+                R.id.action_expire_week -> {
+                    val intent = Intent(this, OffersInRangeActivity::class.java).apply {
+                        putExtra("range", "week")
+                    }
+                    startActivity(intent)
+                    true
+                }
+                R.id.action_about_us -> {
+                    true
+                }
+                R.id.action_feedback -> {
+                    true
+                }
+                else -> false
+            }
         }
     }
 
     private fun startLoadingAnim() {
+        fab.isEnabled=false
         viewPager.visibility = View.GONE
         progress_circular.visibility = View.VISIBLE
         progress_circular.animate()
@@ -94,6 +137,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun stopLoadingAnim() {
+        fab.isEnabled=true
         viewPager.visibility = View.VISIBLE
         progress_circular.visibility = View.GONE
     }
@@ -115,16 +159,18 @@ class MainActivity : AppCompatActivity() {
             )
             cursor?.run {
 
+                val currTimeMillis = System.currentTimeMillis()
                 var maxTimeMillis = lastSmsTimeMillis
                 while (moveToNext()) {
                     val address = getString(getColumnIndexOrThrow("address"))
                     val smsBody = getString(getColumnIndexOrThrow("body"))
                     val timeInMillis = getLong(getColumnIndexOrThrow("date"))
+
+
                     if (timeInMillis > lastSmsTimeMillis) {
                         val offerExtractor = OfferExtractor(smsBody)
                         val offerCode = offerExtractor.extractOfferCode()
                         val offer = offerExtractor.extractOffer()
-
                         if (offerCode != "none" && offer != "none") {
                             val calendar = Calendar.getInstance().apply { setTimeInMillis(timeInMillis) }
                             val smsYear = calendar.get(Calendar.YEAR).toString()
@@ -142,19 +188,24 @@ class MainActivity : AppCompatActivity() {
                                 else -> expiryDateInfo.expiryDate
                             }
 
-                            val extraPeriod = 16 * 60 * 60 * 1000L
+                            val oneDayExpiry = with(calendar) {
+                                set(Calendar.HOUR_OF_DAY, 23)
+                                set(Calendar.MINUTE, 30)
+                                calendar.timeInMillis
+                            }
                             val expiryTimeMillis =
-                                if (expiryDateInfo.expiryTimeInMillis == -2L) timeInMillis + extraPeriod else expiryDateInfo.expiryTimeInMillis
+                                if (expiryDateInfo.expiryTimeInMillis == -2L) oneDayExpiry else expiryDateInfo.expiryTimeInMillis
 
                             val newOffer = OfferModel(
                                 offerCode = offerCode,
                                 offer = offer,
                                 vendor = address,
-                                message = smsBody,
+                                message = if (expiryTimeMillis >= currTimeMillis) smsBody else "",
                                 expiryDate = expiryDate,
                                 expiryTimeInMillis = expiryTimeMillis,
                                 deleteMark = false
                             )
+
                             newOffers.add(newOffer)
                         }
                     }
@@ -176,7 +227,6 @@ class MainActivity : AppCompatActivity() {
                     Toast.makeText(this, "No new  Offers found :(", Toast.LENGTH_SHORT).show()
                 }
             }
-
         }
 
         Handler().post {
@@ -186,25 +236,25 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-
     private fun deleteAllExpired() {
         val repository = Repository.getInstance(application)
         var expiredList: List<OfferModel> = listOf()
         val expiredLive = repository.expiredOffers
         expiredLive.observe(this, Observer { it -> it.let { expiredList = it } })
         expiredLive.removeObservers(this)
-        repository.deleteOffers(*(expiredList.toTypedArray()))
+        if (expiredList.isNotEmpty()) {
+            val builder = AlertDialog.Builder(this)
+                .setMessage("Delete All ?")
+                .setPositiveButton("ok") { _, _ ->
+                    repository.deleteOffers(*(expiredList.toTypedArray()))
+                }
+                .setNegativeButton("Cancel") { dialog, _ ->
+                    dialog.dismiss()
+                }
+            val dialog = builder.create()
+            dialog.window?.setBackgroundDrawableResource(R.drawable.offer_card_bg_solid)
+            dialog.show()
+        }
     }
 
-    private fun showDeleteAll(){
-        val builder = AlertDialog.Builder(this)
-            .setMessage("Delete All ?")
-            .setPositiveButton("ok"){_,_->
-                deleteAllExpired()
-            }
-            .setNegativeButton("Cancel"){dialog, _ ->
-                dialog.dismiss()
-            }
-        builder.create().show()
-    }
 }

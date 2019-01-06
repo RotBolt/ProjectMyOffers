@@ -121,6 +121,5 @@ class SearchActivity : AppCompatActivity() {
             dialog.window!!.setBackgroundDrawableResource(R.drawable.offer_card_bg_solid)
 
         dialog.show()
-
     }
 }

@@ -18,7 +18,7 @@ public interface OfferDao {
     @Query("SELECT * FROM Offers  WHERE expiryTimeInMillis >= :currentTimeMillis ORDER BY expiryTimeInMillis ASC")
     LiveData<List<OfferModel>> getActiveOffers(Long currentTimeMillis);
 
-    @Query("SELECT * FROM Offers  WHERE expiryTimeInMillis < :currentTimeMillis ORDER BY expiryTimeInMillis ASC")
+    @Query("SELECT * FROM Offers  WHERE expiryTimeInMillis < :currentTimeMillis ORDER BY expiryTimeInMillis DESC")
     LiveData<List<OfferModel>> getExpiredOffers(Long currentTimeMillis);
 
     @Query("SELECT * FROM Offers WHERE deleteMark=1")
@@ -36,7 +36,10 @@ public interface OfferDao {
     @Query("SELECT * FROM Offers WHERE offerCode = :offerCode")
     OfferModel getOfferModel(String offerCode);
 
-    @Query("SELECT * FROM Offers WHERE expiryTimeInMillis >= :currTimeMillis AND offerCode LIKE :keyWord OR message LIKE :keyWord OR vendor LIKE :keyWord")
+    @Query("SELECT * FROM Offers WHERE expiryTimeInMillis >= :currTimeMillis AND (offerCode LIKE :keyWord OR message LIKE :keyWord OR vendor LIKE :keyWord)")
     List<OfferModel> findOffersByKeyWord(String keyWord, Long currTimeMillis);
+
+    @Query("SELECT * FROM Offers WHERE expiryTimeInMillis>=:begin AND expiryTimeInMillis<=:end")
+    List<OfferModel> getOffersExpiringInRange(Long begin, Long end);
 
 }

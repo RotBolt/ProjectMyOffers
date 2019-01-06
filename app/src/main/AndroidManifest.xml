@@ -39,6 +39,8 @@
 
         <activity android:name=".ui.activities.SearchActivity">
         </activity>
+        <activity android:name=".ui.activities.OffersInRangeActivity">
+        </activity>
     </application>
 
 </manifest>

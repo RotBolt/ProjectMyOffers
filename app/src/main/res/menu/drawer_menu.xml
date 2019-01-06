@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:tools="http://schemas.android.com/tools"
+      tools:showIn="@layout/nav_header_main">
+
+    <item
+            android:id="@+id/action_expire_today"
+            android:title="@string/offers_expire_today">
+    </item>
+
+    <item
+            android:id="@+id/action_expire_week"
+            android:title="@string/offer_expire_week">
+    </item>
+
+    <item
+            android:title="Communicate">
+        <menu>
+            <item
+                    android:id="@+id/action_about_us"
+                    android:title="@string/about_us">
+            </item>
+
+            <item
+                    android:id="@+id/action_feedback"
+                    android:title="@string/feedback">
+            </item>
+        </menu>
+    </item>
+
+</menu>
