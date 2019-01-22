@@ -22,6 +22,7 @@ import com.intellyticshub.projectmyoffers.R;
 import com.intellyticshub.projectmyoffers.data.Repository;
 import com.intellyticshub.projectmyoffers.data.entity.OfferModel;
 import com.intellyticshub.projectmyoffers.ui.activities.MainActivity;
+import com.intellyticshub.projectmyoffers.utils.Constants;
 import com.intellyticshub.projectmyoffers.utils.OfferExtractor;
 
 import java.util.Calendar;
@@ -70,8 +71,11 @@ public class NewOfferDetector extends BroadcastReceiver {
                                 calendar.set(Calendar.HOUR_OF_DAY, 23);
                                 calendar.set(Calendar.MINUTE, 30);
                                 expiryTimeMillis = calendar.getTimeInMillis();
+                            } else if (expiryDateInfo.getExpiryTimeInMillis() == Long.MAX_VALUE) {
+                                expiryTimeMillis = calendar.getTimeInMillis() + Constants.INSTANCE.getPadExtraTime();
                             } else
                                 expiryTimeMillis = expiryDateInfo.getExpiryTimeInMillis();
+
                             String expiryDate;
                             switch (expiryDateInfo.getExpiryDate()) {
                                 case "findFromCurrTime":

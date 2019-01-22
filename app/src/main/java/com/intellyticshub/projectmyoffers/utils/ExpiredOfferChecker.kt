@@ -24,8 +24,7 @@ class ExpiredOfferMarker(context: Context, params: WorkerParameters) : Worker(co
             }
             if (marked.isNotEmpty()) {
                 repository.updateOffers(*marked.toTypedArray())
-                val duration = 15L
-                scheduleExpiryDeleting(duration)
+                scheduleExpiryDeleting(Constants.deleteExpiryDays)
             }
         }
         return Result.success()

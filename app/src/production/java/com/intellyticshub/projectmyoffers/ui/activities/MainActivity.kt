@@ -17,6 +17,7 @@ import com.intellyticshub.projectmyoffers.R
 import com.intellyticshub.projectmyoffers.data.Repository
 import com.intellyticshub.projectmyoffers.data.entity.OfferModel
 import com.intellyticshub.projectmyoffers.ui.adapters.PagerAdapter
+import com.intellyticshub.projectmyoffers.utils.Constants
 import com.intellyticshub.projectmyoffers.utils.OfferExtractor
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
@@ -60,6 +61,8 @@ class MainActivity : AppCompatActivity() {
         viewPager.offscreenPageLimit = 1
         viewPager.addOnPageChangeListener(TabLayout.TabLayoutOnPageChangeListener(tabLayout))
 
+        tvMarquee.isSelected = true
+
         tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabReselected(tab: TabLayout.Tab) {}
 
@@ -71,12 +74,14 @@ class MainActivity : AppCompatActivity() {
                         isActiveTab = true
                         ivSearch.visibility = View.VISIBLE
                         viewPager.currentItem = 0
+                        tvMarquee.visibility = View.VISIBLE
                         fab.setImageResource(R.drawable.ic_find)
                     }
                     1 -> {
                         isActiveTab = false
                         ivSearch.visibility = View.GONE
                         viewPager.currentItem = 1
+                        tvMarquee.visibility = View.GONE
                         fab.setImageResource(R.drawable.ic_delete)
                     }
                 }
@@ -85,7 +90,7 @@ class MainActivity : AppCompatActivity() {
 
         fab.setOnClickListener {
             if (isActiveTab) {
-                    scanForOffers()
+                scanForOffers()
             } else {
                 deleteAllExpired()
             }
@@ -118,9 +123,14 @@ class MainActivity : AppCompatActivity() {
                     true
                 }
                 R.id.action_about_us -> {
+                    val browseIntent = Intent(Intent.ACTION_VIEW).apply {
+                        data = Uri.parse(Constants.contactWebsite)
+                    }
+                    startActivity(browseIntent)
                     true
                 }
                 R.id.action_feedback -> {
+                    startActivity(Intent(this@MainActivity, FeedbackActivity::class.java))
                     true
                 }
                 else -> false
@@ -129,15 +139,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startLoadingAnim() {
-        fab.isEnabled=false
+        fab.isEnabled = false
         viewPager.visibility = View.GONE
+        tvMarquee.visibility = View.GONE
         progress_circular.visibility = View.VISIBLE
         progress_circular.animate()
 
     }
 
     private fun stopLoadingAnim() {
-        fab.isEnabled=true
+        fab.isEnabled = true
+        tvMarquee.visibility = View.VISIBLE
         viewPager.visibility = View.VISIBLE
         progress_circular.visibility = View.GONE
     }
@@ -188,13 +200,22 @@ class MainActivity : AppCompatActivity() {
                                 else -> expiryDateInfo.expiryDate
                             }
 
-                            val oneDayExpiry = with(calendar) {
-                                set(Calendar.HOUR_OF_DAY, 23)
-                                set(Calendar.MINUTE, 30)
-                                calendar.timeInMillis
-                            }
+
                             val expiryTimeMillis =
-                                if (expiryDateInfo.expiryTimeInMillis == -2L) oneDayExpiry else expiryDateInfo.expiryTimeInMillis
+                                when (expiryDateInfo.expiryTimeInMillis) {
+                                    -2L -> {
+                                        val oneDayExpiry = with(calendar) {
+                                            set(Calendar.HOUR_OF_DAY, 23)
+                                            set(Calendar.MINUTE, 30)
+                                            calendar.timeInMillis
+                                        }
+                                        oneDayExpiry
+                                    }
+                                    Long.MAX_VALUE -> {
+                                        calendar.timeInMillis + Constants.padExtraTime
+                                    }
+                                    else -> expiryDateInfo.expiryTimeInMillis
+                                }
 
                             val newOffer = OfferModel(
                                 offerCode = offerCode,
