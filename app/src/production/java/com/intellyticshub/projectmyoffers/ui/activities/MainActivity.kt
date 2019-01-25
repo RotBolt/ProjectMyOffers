@@ -44,6 +44,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
     private fun checkFirstRun() {
         val sharedPrefs = getSharedPreferences(getString(R.string.shared_pref_key), Context.MODE_PRIVATE)
         val isFirstRun = sharedPrefs.getBoolean(getString(R.string.first_run), true)
