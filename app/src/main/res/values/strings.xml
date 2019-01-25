@@ -1,6 +1,7 @@
 <resources>
-    <string name="app_name">Project My Offers</string>
-    <string name="app_title">My offers</string>
+    <string name="app_name">MOMS</string>
+    <string name="app_title">MOMS</string>
+    <string name="app_long_title">My Offers My Savings</string>
     <string name="expired_delete_info">Expired Offers will be deleted after 15 days</string>
     <string name="no_active_offers">No Active offers</string>
     <string name="no_expired_offers">No Expired offers</string>
@@ -9,10 +10,17 @@
     <string name="first_run">first_run</string>
     <string name="search_hint">Search Offers by Brands</string>
     <string name="permission_info">
-        For My Offers to work please allow the following permissions \n\n
+        My Offers My Savings (MOMS) will automatically detect for Offers in New Messages. \n\n
+        For My Offers My Savings (MOMS) to work please allow the following permissions \n\n
         1. Read SMS \n
         2. Receive SMS
     </string>
     <string name="empty_search_result">Search your offers</string>
     <string name="empty_search_image_placeholder">No offers found image</string>
+    <string name="offers_expire_today">Offers Expiring Today</string>
+    <string name="offer_expire_week">Offers Expire in week</string>
+    <string name="about_us">About us</string>
+    <string name="feedback">Feedback</string>
+    <string name="no_expiry_info_label"><![CDATA[Offer Code without expiry date greater than 45 days will not be listed in Active Offers]]></string>
+    <string name="feedback_label">Feedback</string>
 </resources>

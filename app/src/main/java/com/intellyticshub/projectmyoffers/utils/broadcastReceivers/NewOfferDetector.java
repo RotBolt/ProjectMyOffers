@@ -22,6 +22,7 @@ import com.intellyticshub.projectmyoffers.R;
 import com.intellyticshub.projectmyoffers.data.Repository;
 import com.intellyticshub.projectmyoffers.data.entity.OfferModel;
 import com.intellyticshub.projectmyoffers.ui.activities.MainActivity;
+import com.intellyticshub.projectmyoffers.utils.Constants;
 import com.intellyticshub.projectmyoffers.utils.OfferExtractor;
 
 import java.util.Calendar;
@@ -64,6 +65,17 @@ public class NewOfferDetector extends BroadcastReceiver {
                             String currYear = String.valueOf(calendar.get(Calendar.YEAR));
                             OfferExtractor.ExpiryDateInfo expiryDateInfo = offerExtractor.extractExpiryDate(currYear);
 
+
+                            Long expiryTimeMillis;
+                            if (expiryDateInfo.getExpiryTimeInMillis() == -2L) {
+                                calendar.set(Calendar.HOUR_OF_DAY, 23);
+                                calendar.set(Calendar.MINUTE, 30);
+                                expiryTimeMillis = calendar.getTimeInMillis();
+                            } else if (expiryDateInfo.getExpiryTimeInMillis() == Long.MAX_VALUE) {
+                                expiryTimeMillis = calendar.getTimeInMillis() + Constants.INSTANCE.getPadExtraTime();
+                            } else
+                                expiryTimeMillis = expiryDateInfo.getExpiryTimeInMillis();
+
                             String expiryDate;
                             switch (expiryDateInfo.getExpiryDate()) {
                                 case "findFromCurrTime":
@@ -81,12 +93,6 @@ public class NewOfferDetector extends BroadcastReceiver {
                                     expiryDate = expiryDateInfo.getExpiryDate();
                             }
 
-                            Long expiryTimeMillis;
-                            Long extraPeriod = 16 * 60 * 60 * 1000L;
-                            if (expiryDateInfo.getExpiryTimeInMillis() == -2L)
-                                expiryTimeMillis = currTimeMillis + extraPeriod;
-                            else
-                                expiryTimeMillis = expiryDateInfo.getExpiryTimeInMillis();
 
                             OfferModel newOffer = new OfferModel(
                                     offerCode,

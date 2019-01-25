@@ -55,8 +55,10 @@ class PermissionActivity : AppCompatActivity() {
             if (grantResults[1] == PackageManager.PERMISSION_DENIED) {
                 Toast.makeText(this, "Please Allow RECEIVE_SMS", Toast.LENGTH_SHORT).show()
             }
-            if (checkPermissions(this.permissions))
+            if (checkPermissions(this.permissions)) {
                 btnPerm.text = "Next >>"
+                tvPermInfo.text="Awesome :) \n Let's find you some offers"
+            }
         }
 
     }

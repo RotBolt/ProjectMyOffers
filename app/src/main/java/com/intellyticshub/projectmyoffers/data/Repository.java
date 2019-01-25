@@ -1,6 +1,7 @@
 package com.intellyticshub.projectmyoffers.data;
 
 import android.app.Application;
+import android.util.Log;
 import androidx.lifecycle.LiveData;
 import com.intellyticshub.projectmyoffers.data.entity.OfferModel;
 
@@ -59,7 +60,7 @@ public class Repository {
     }
 
     public List<OfferModel> findOffersByKeyWords(String keyWord, Long currentTimeMillis) {
-        Callable<List<OfferModel>> filterOfferTask = () -> offerDao.findOffersByKeyWord("%"+keyWord+"%", currentTimeMillis);
+        Callable<List<OfferModel>> filterOfferTask = () -> offerDao.findOffersByKeyWord("%" + keyWord + "%", currentTimeMillis);
 
         Future<List<OfferModel>> futureOffers = executor.submit(filterOfferTask);
 
@@ -173,5 +174,22 @@ public class Repository {
         return null;
     }
 
+    public List<OfferModel> getOfferExpiringInRange(Long begin, Long end) {
+        Callable<List<OfferModel>> task = () -> offerDao.getOffersExpiringInRange(begin, end);
+        Future<List<OfferModel>> future = executor.submit(task);
+
+        try {
+
+            return future.get();
+        } catch (ExecutionException e) {
+            Log.i("PUI","execption");
+            e.printStackTrace();
+            return null;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            Log.i("PUI","execption");
+            return null;
+        }
+    }
 
 }

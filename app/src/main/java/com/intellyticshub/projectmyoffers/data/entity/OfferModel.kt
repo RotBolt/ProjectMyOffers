@@ -13,7 +13,7 @@ data class OfferModel(
     val offer: String,
     val vendor: String,
     val expiryDate: String,
-    val message: String,
+    var message: String,
     val expiryTimeInMillis: Long,
     var deleteMark: Boolean = false
 ) : Parcelable

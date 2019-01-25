@@ -18,13 +18,13 @@ class ExpiredOfferMarker(context: Context, params: WorkerParameters) : Worker(co
             for (offer in allOffers) {
                 if (offer.expiryTimeInMillis < currTimeMillis && !offer.deleteMark) {
                     offer.deleteMark = true
+                    offer.message = ""
                     marked.add(offer)
                 }
             }
             if (marked.isNotEmpty()) {
                 repository.updateOffers(*marked.toTypedArray())
-                val duration = 15L
-                scheduleExpiryDeleting(duration)
+                scheduleExpiryDeleting(Constants.deleteExpiryDays)
             }
         }
         return Result.success()

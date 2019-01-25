@@ -13,13 +13,13 @@ import java.util.List;
 public class ActiveOfferViewModel extends AndroidViewModel {
     private LiveData<List<OfferModel>> activeOffers;
     private List<OfferModel> filteredOffers;
+    private List<OfferModel> offerExpiringInRange;
     private Repository repository;
 
     public ActiveOfferViewModel(@NonNull Application application) {
         super(application);
         repository = Repository.getInstance(application);
         activeOffers = repository.getActiveOffers();
-        filteredOffers = null;
     }
 
 
@@ -30,6 +30,15 @@ public class ActiveOfferViewModel extends AndroidViewModel {
     public List<OfferModel> findOffersByKeyWord(String keyWord, Long currTimeMillis) {
         filteredOffers = repository.findOffersByKeyWords(keyWord, currTimeMillis);
         return filteredOffers;
+    }
+
+    public List<OfferModel> getOfferExpiringInRange() {
+        return offerExpiringInRange;
+    }
+
+    public List<OfferModel> getOfferExpiringInRange(Long begin, Long end) {
+        offerExpiringInRange = repository.getOfferExpiringInRange(begin, end);
+        return offerExpiringInRange;
     }
 
     public LiveData<List<OfferModel>> getActiveOffers() {
